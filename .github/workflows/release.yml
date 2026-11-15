@@ -1,0 +1,84 @@
+name: release
+
+# 版（app/build.gradle.kts の versionName）を上げて main に push すると、タグ v<版> と Release を自動で作る（spec §6.1 の 2）。
+# APK はシリーズ共通の鍵（Secret の 4 つ）で署名し、鍵・ID・版を確かめてから出す。本文は docs/release-notes/v<版>.md。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      # シリーズ共通の鍵の SHA-256（Theta.Hatch.Series の secrets/README.md）
+      CERT_SHA256: f47740d8549bc1c37feb00b18780d80b52758b60252ba0d2217d83ab3f012a23
+      PKG: app.thetahatch.tvhome
+    steps:
+      - uses: actions/checkout@v4
+      - name: 版を読む・出すか決める
+        id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ver=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          echo "ver=$ver" >> "$GITHUB_OUTPUT"
+          if gh release view "v${ver}" >/dev/null 2>&1; then
+            echo "v${ver} は出し済み。版を上げると出ます"; echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            test -f "docs/release-notes/v${ver}.md" || { echo "::error::docs/release-notes/v${ver}.md がありません"; exit 1; }
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-java@v4
+        if: steps.v.outputs.go == 'true'
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.v.outputs.go == 'true'
+      - name: 鍵を用意する
+        if: steps.v.outputs.go == 'true'
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_B64" || { echo "::error::Secret ANDROID_KEYSTORE_B64 がありません（Theta.Hatch.Series の tools/sync-secrets で配る）"; exit 1; }
+          echo "$ANDROID_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+      - name: テストとビルド
+        if: steps.v.outputs.go == 'true'
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease
+      - name: 署名・ID・版を確かめる
+        if: steps.v.outputs.go == 'true'
+        id: apk
+        run: |
+          ver="${{ steps.v.outputs.ver }}"
+          src=app/build/outputs/apk/release/app-release.apk
+          test -f "$src" || { echo "::error::署名済みの APK ができていません（Secret を確かめてください）"; exit 1; }
+          apk="ThetaTVhomeHatch-${ver}.apk"
+          cp "$src" "$apk"
+          bt=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          certs=$("$bt/apksigner" verify --print-certs "$apk")
+          echo "$certs"
+          echo "$certs" | grep -q "SHA-256 digest: ${CERT_SHA256}" || { echo "::error::シリーズ共通の鍵で署名されていません"; exit 1; }
+          "$bt/aapt2" dump badging "$apk" | grep -q "package: name='${PKG}'" || { echo "::error::アプリ ID が ${PKG} ではありません"; exit 1; }
+          "$bt/aapt2" dump badging "$apk" | grep -q "versionName='${ver}'" || { echo "::error::APK の版が ${ver} ではありません"; exit 1; }
+          sha256sum "$apk" > "SHA256SUMS-${ver}.txt"
+          echo "apk=$apk" >> "$GITHUB_OUTPUT"
+          echo "sums=SHA256SUMS-${ver}.txt" >> "$GITHUB_OUTPUT"
+      - name: Release を作る
+        if: steps.v.outputs.go == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ver="${{ steps.v.outputs.ver }}"
+          pre=""
+          case "$ver" in *-*) pre="--prerelease";; esac
+          gh release create "v${ver}" "${{ steps.apk.outputs.apk }}" "${{ steps.apk.outputs.sums }}" --target "$GITHUB_SHA" \
+            --title "Theta TVhome Hatch ${ver}" --notes-file "docs/release-notes/v${ver}.md" $pre
