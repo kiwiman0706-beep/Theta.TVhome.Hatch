@@ -29,7 +29,7 @@ object Weather {
         val url = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon" +
             "&current=temperature_2m,weather_code,is_day" +
             "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
-            "&timezone=auto&forecast_days=4&timeformat=unixtime"
+            "&timezone=auto&forecast_days=7&timeformat=unixtime"
         return parse(Net.get(url), System.currentTimeMillis())
     }
 

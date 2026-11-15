@@ -54,12 +54,19 @@ class ScreenshotTest {
         app.store.favorites = fake.take(4).map { it.pkg }
         NetStatus.setForTest(NetInfo("wifi", true, true, 3, 433))
         val t = System.currentTimeMillis()
-        app.state.forecast.value = Forecast(14.0, 1, true, listOf(Day(t, 1, 18.0, 9.0, 10), Day(t, 61, 15.0, 10.0, 70), Day(t, 0, 19.0, 8.0, 0)), t)
+        val codes = listOf(1, 61, 0, 3, 0, 80, 2)
+        app.state.forecast.value = Forecast(14.0, 1, true, codes.mapIndexed { i, c -> Day(t + i * 86_400_000L, c, 18.0 - i % 3, 9.0, listOf(10, 70, 0, 20, 0, 60, 10)[i]) }, t)
         app.state.events.value = listOf(
             Event("おふろ そうじ", now.minusMinutes(10), now.plusMinutes(20), false),
             Event("ピアノ", now.plusHours(2), now.plusHours(3), false),
             Event("遠足", now.plusDays(1).withHour(0), null, true),
             Event("歯医者", now.plusDays(1).withHour(16).withMinute(30), null, false),
+            Event("ピアノ", now.plusDays(7).withHour(17), null, false),
+            Event("じいじ たんじょうび", now.plusDays(4).withHour(0), null, true),
+            Event("参観日", now.minusDays(5).withHour(10), null, false),
+            Event("スイミング", now.plusDays(3).withHour(15), null, false),
+            Event("ほいくえん おやすみ", now.plusDays(9).withHour(0), now.plusDays(11).withHour(0), true),
+            Event("買い物", now.plusDays(1).withHour(10), null, false),
         )
     }
 

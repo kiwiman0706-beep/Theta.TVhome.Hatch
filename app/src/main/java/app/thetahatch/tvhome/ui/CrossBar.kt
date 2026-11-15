@@ -76,11 +76,11 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sin
 
-private val CAT_X = 110.dp      // 選んでいるまとまりの横の位置（左の区画の中）
-private val CAT_STEP = 118.dp   // まとまりの間
+private val CAT_X = 96.dp      // 選んでいるまとまりの横の位置（左の区画の中）
+private val CAT_STEP = 104.dp   // まとまりの間
 private val BAR_Y = 200.dp      // 横の帯の高さ
 private val ITEM_STEP = 64.dp   // 項目の間
-private val LEFT_W = 530.dp     // クロスバーの区画の幅（右は計器盤）
+private val LEFT_W = 440.dp     // クロスバーの区画の幅（右は計器盤）
 
 /**
  * クロスバー＋計器盤：左にクロスバー（横にまとまり、縦に中身）、右に時計・てんき・よてい、下にネットなどの状態。
@@ -256,64 +256,42 @@ private fun ItemRow(it: Item, sel: Boolean, d: Float, i: Int, n: Int, col: Color
     }
 }
 
-/** 右の計器盤：時計・てんき・よてい。 */
+/** 右の計器盤：いま（時計・てんき・つぎの予定）と、予定とてんき入りの月のカレンダー。 */
 @Composable
 private fun Dashboard(modifier: Modifier, now: ZonedDateTime, forecast: Forecast?, events: List<Event>) {
     val p = LocalPalette.current
     Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        HudFrame("SYS.TIME", "じこく", trailing = now.format(DateTimeFormatter.ofPattern("EEE", Locale.US)).uppercase()) {
-            Row(verticalAlignment = Alignment.Bottom) {
+        HudFrame("NOW", "いま", trailing = now.format(DateTimeFormatter.ofPattern("EEE", Locale.US)).uppercase()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 T(now.format(DateTimeFormatter.ofPattern("H:mm")), size = 44.sp, font = headFont(), weight = FontWeight.Light)
-                Spacer(Modifier.width(14.dp))
-                Column(Modifier.padding(bottom = 6.dp)) {
-                    T(now.format(DateTimeFormatter.ofPattern("M月d日（E）", Locale.JAPAN)), size = 20.sp)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    T(now.format(DateTimeFormatter.ofPattern("M/d（E）", Locale.JAPAN)), size = 18.sp)
+                    Meter((now.hour * 60 + now.minute) / 1440f, Modifier.fillMaxWidth().padding(top = 4.dp))
                 }
-            }
-            // 1 日のうち、どこまで来たか
-            Meter((now.hour * 60 + now.minute) / 1440f, Modifier.fillMaxWidth())
-        }
-        HudFrame("WX", "てんき", trailing = forecast?.let { "%.0f°".format(it.temp) } ?: "--") {
-            if (forecast == null) T("せってい で 場所を えらぶと 出ます", size = 16.sp, color = p.muted, lines = 2)
-            else {
-                val (icon, word) = Weather.describe(forecast.code, forecast.isDay)
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                forecast?.let { f ->
+                    Spacer(Modifier.width(14.dp))
+                    val (icon, word) = Weather.describe(f.code, f.isDay)
                     T(icon, size = 30.sp)
-                    Spacer(Modifier.width(10.dp))
-                    T("%.0f°".format(forecast.temp), size = 32.sp, font = headFont(), weight = FontWeight.Light)
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(6.dp))
                     Column {
-                        T(word, size = 16.sp)
-                        forecast.days.firstOrNull()?.let { d -> T("%.0f° / %.0f°".format(d.max, d.min), size = 14.sp, color = p.muted, font = Mono) }
+                        T("%.0f°  $word".format(f.temp), size = 18.sp)
+                        f.days.firstOrNull()?.let { d -> T("%.0f°/%.0f°  ☂%d%%".format(d.max, d.min, d.rain), size = 13.sp, color = p.muted, font = Mono) }
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    forecast.days.take(3).forEachIndexed { i, d ->
-                        Column(Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                T(listOf("きょう", "あした", "あさって")[i], size = 14.sp, color = p.muted)
-                                Spacer(Modifier.width(4.dp))
-                                T(Weather.describe(d.code).first, size = 16.sp)
-                                Spacer(Modifier.weight(1f))
-                                T("%d%%".format(d.rain), size = 12.sp, color = p.muted, font = Mono)
-                            }
-                            Meter(d.rain / 100f, Modifier.fillMaxWidth().padding(top = 2.dp), color = Color(0xFF4FA3E0))
-                        }
-                    }
-                }
+            }
+            val next = upcoming(events, now).firstOrNull()
+            if (next != null) Row(verticalAlignment = Alignment.CenterVertically) {
+                val on = next.start <= now
+                Box(Modifier.width(4.dp).height(18.dp).background(if (on) p.accent else p.widget))
+                Spacer(Modifier.width(8.dp))
+                T(if (on) "いま" else "つぎ " + eventWhen(next), size = 14.sp, color = if (on) p.accent else p.muted)
+                Spacer(Modifier.width(10.dp))
+                T(next.title, size = 16.sp)
             }
         }
-        val up = upcoming(events).take(4)
-        HudFrame("CAL", "よてい", Modifier.weight(1f), trailing = "%02d".format(upcoming(events).size)) {
-            if (up.isEmpty()) T("よていは ないよ", size = 18.sp, color = p.muted)
-            up.forEach { e ->
-                val nowOn = e.start <= now && (e.end ?: e.start) >= now
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.width(4.dp).height(22.dp).background(if (nowOn) p.accent else if (e.start.toLocalDate() == now.toLocalDate()) p.widget else p.line))
-                    Spacer(Modifier.width(10.dp))
-                    T(if (nowOn) "いま" else eventWhen(e), Modifier.width(110.dp), size = 14.sp, color = if (nowOn) p.accent else p.muted)
-                    T(e.title, size = 17.sp)
-                }
-            }
+        HudFrame("CAL", now.format(DateTimeFormatter.ofPattern("yyyy年 M月", Locale.JAPAN)), Modifier.weight(1f), trailing = "%02d".format(events.count { it.start.month == now.month })) {
+            MonthCalendar(now.toLocalDate(), events, forecast, Modifier.weight(1f))
         }
     }
 }

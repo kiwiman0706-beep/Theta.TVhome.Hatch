@@ -1,5 +1,6 @@
 package app.thetahatch.tvhome
 
+import app.thetahatch.tvhome.data.Event
 import app.thetahatch.tvhome.data.Ics
 import app.thetahatch.tvhome.data.Place
 import app.thetahatch.tvhome.hub.ApkFacts
@@ -93,5 +94,14 @@ class LogicTest {
         assertTrue(Verify.judge(self, good.copy(signers = setOf("x"))) { installed } is Verdict.Bad)
         assertTrue(Verify.judge(self, good.copy(versionCode = 1)) { installed } is Verdict.Bad)
         assertTrue(Verify.judge(self, good.copy(packageName = "evil")) { installed } is Verdict.Bad)
+    }
+
+    @Test fun monthGridAndMultiDay() {
+        val g = app.thetahatch.tvhome.ui.monthGrid(java.time.LocalDate.of(2026, 11, 15))
+        assertEquals(java.time.LocalDate.of(2026, 11, 1), g.first()) // 2026-11-01 は日曜
+        assertEquals(42, g.size)
+        val e = Event("連休", ZonedDateTime.of(2026, 11, 21, 0, 0, 0, 0, tokyo), ZonedDateTime.of(2026, 11, 24, 0, 0, 0, 0, tokyo), true)
+        val on = (20..24).filter { app.thetahatch.tvhome.ui.eventsOn(java.time.LocalDate.of(2026, 11, it), listOf(e)).isNotEmpty() }
+        assertEquals(listOf(21, 22, 23), on)
     }
 }
