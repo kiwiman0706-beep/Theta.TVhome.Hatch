@@ -156,6 +156,25 @@ body {
 .tv.cal-open.in-grid .calnote { opacity: 0; }
 .tv.cal-open.in-grid .detail { opacity: 1; }
 
+/* 余白：家族の写真（ゆっくり入れ替わる）とピン留めのメモ */
+.side { position: absolute; left: 1000px; right: 96px; top: 352px; height: 400px; display: flex; gap: 26px; z-index: 1; transition: opacity .35s; }
+.tv.cal-open .side { opacity: 0; }
+.side[data-mode="none"] { display: none; }
+.side[data-mode="photo"] .memos, .side[data-mode="memo"] .photo { display: none; }
+.photo { position: relative; flex: 1 1 auto; min-width: 0; border-radius: 18px; overflow: hidden; background: var(--panel); box-shadow: 0 18px 40px rgba(0,0,0,.35); }
+.photo .ph { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s ease; display: grid; place-items: center; font-size: 120px; }
+.photo .ph.on { opacity: 1; animation: kb 12s ease-out forwards; }
+@keyframes kb { from { transform: scale(1.06); } to { transform: scale(1); } }
+.photo .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 22px 16px; background: linear-gradient(transparent, rgba(0,0,0,.6)); color: #fff; display: flex; align-items: baseline; gap: 14px; }
+.photo .cap b { font: 400 30px/1 var(--display); letter-spacing: .02em; }
+.photo .cap span { font-size: 18px; opacity: .85; }
+.photo .src { position: absolute; right: 16px; top: 14px; font: 14px var(--mono); color: #fff; opacity: .7; letter-spacing: .08em; }
+.memos { flex: 0 0 250px; display: flex; flex-direction: column; gap: 16px; }
+.memos h3 { margin: 0; font: 400 15px var(--mono); letter-spacing: .14em; color: var(--muted); }
+.memo { position: relative; padding: 14px 16px 16px; border-radius: 6px 6px 18px 6px; background: var(--mc); color: #2b2620; font-size: 19px; line-height: 1.4; box-shadow: 0 8px 20px rgba(0,0,0,.25); transform: rotate(var(--r)); }
+.memo::before { content: ""; position: absolute; top: -9px; left: 50%; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,.4); }
+.memo small { display: block; font-size: 14px; opacity: .65; margin-top: 4px; }
+
 /* 操作のヒント */
 .hint { position: absolute; left: 96px; bottom: 16px; font: 15px var(--mono); color: var(--faint); letter-spacing: .06em; z-index: 3; }
 .hint b { color: var(--muted); font-weight: 400; }
@@ -178,6 +197,12 @@ body {
     <button id="sk-braun" data-skin="braun" aria-pressed="false">braun</button>
     <button id="sk-night" data-skin="night" aria-pressed="false">おほしさま</button>
   </div>
+  <div class="seg" role="group" aria-label="余白">
+    <button id="sd-both" data-side="both" aria-pressed="true">写真＋メモ</button>
+    <button id="sd-photo" data-side="photo" aria-pressed="false">写真</button>
+    <button id="sd-memo" data-side="memo" aria-pressed="false">メモ</button>
+    <button id="sd-none" data-side="none" aria-pressed="false">なし</button>
+  </div>
 </div>
 
 <div class="stage-wrap" id="wrap">
@@ -196,6 +221,15 @@ body {
     <div class="items" id="items"><div class="list" id="list"></div></div>
     <div class="calnote" id="calnote">↓ で日にちへ　<b>戻る</b> で帯にもどる</div>
     <div class="detail" id="detail"></div>
+    <div class="side" id="side" data-mode="both">
+      <div class="photo" id="photo"><div class="src">PHOTO.HATCH</div><div class="cap"><b id="capT">2025.08</b><span id="capS">うみ</span></div></div>
+      <div class="memos">
+        <h3>PINNED // MEMO</h3>
+        <div class="memo" style="--mc:#fff3a8;--r:-1.5deg">かうもの：ぎゅうにゅう・たまご・パン<small>ママ・きょう</small></div>
+        <div class="memo" style="--mc:#c9f0d0;--r:1deg">金曜は もえないゴミの日<small>パパ・きのう</small></div>
+        <div class="memo" style="--mc:#ffd3e0;--r:-.5deg">ピアノの はっぴょうかい 12/14<small>ママ・3 日まえ</small></div>
+      </div>
+    </div>
     <div class="calhead" id="calhead">NEXT 14 DAYS</div>
     <div class="cal" id="cal"></div>
     <div class="hint"><b>← →</b> まとまり　<b>↑ ↓</b> えらぶ　<b>決定</b> ひらく　<b>メニュー</b> ★・ならべかえ</div>
@@ -329,10 +363,33 @@ body {
     if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'Escape', 'Backspace'].includes(e.key) && !(e.target.closest && e.target.closest('.seg'))) { e.preventDefault(); key(e.key); }
   });
   document.querySelectorAll('.pad button').forEach(b => b.addEventListener('click', () => key(b.dataset.k)));
-  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.seg button[data-skin]').forEach(b => b.addEventListener('click', () => {
     tv.dataset.skin = b.dataset.skin;
-    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    document.querySelectorAll('.seg button[data-skin]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   }));
+  document.querySelectorAll('.seg button[data-side]').forEach(b => b.addEventListener('click', () => {
+    document.getElementById('side').dataset.mode = b.dataset.side;
+    document.querySelectorAll('.seg button[data-side]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  }));
+
+  // ---- 家族の写真（見本。本物は Photo.Hatch／Synology Photos の「家族共有」からランダムに）
+  const PH = [
+    ['linear-gradient(180deg,#7ec8f0 0%,#bfe6f7 55%,#2f8fc4 56%,#1d6f9e 100%)', '🏖', '2025.08', 'うみ'],
+    ['linear-gradient(160deg,#ffd1dc,#ffb3c7 50%,#f6e3a1)', '🌸', '2025.04', 'にゅうえんしき'],
+    ['linear-gradient(180deg,#203a6b,#5a4a9a 60%,#2b2f6b)', '🎆', '2025.07', 'はなび たいかい'],
+    ['linear-gradient(170deg,#f6c27a,#e88a3a 60%,#7a3e1f)', '🍁', '2024.11', 'もみじがり'],
+    ['linear-gradient(180deg,#e8f4ff,#cfe3f5 60%,#ffffff)', '⛄', '2025.01', 'ゆきあそび'],
+  ];
+  const photoEl = document.getElementById('photo');
+  const layers = PH.map(p => { const d = document.createElement('div'); d.className = 'ph'; d.style.background = p[0]; d.textContent = p[1]; photoEl.insertBefore(d, photoEl.firstChild); return d; });
+  let pi = Math.floor(Math.random() * PH.length);
+  function nextPhoto() {
+    layers.forEach((l, i) => l.classList.toggle('on', i === pi));
+    document.getElementById('capT').textContent = PH[pi][2];
+    document.getElementById('capS').textContent = PH[pi][3];
+    pi = (pi + 1) % PH.length;
+  }
+  nextPhoto(); setInterval(nextPhoto, 9000);
 
   // ---- 時計・あいさつ
   function tick() {
