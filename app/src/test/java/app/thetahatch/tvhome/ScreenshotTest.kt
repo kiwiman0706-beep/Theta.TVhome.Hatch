@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -58,7 +59,7 @@ class ScreenshotTest {
         compose.setContent {
             CompositionLocalProvider(LocalPalette provides paletteFor(skin, true)) {
                 Box(Modifier.fillMaxSize().background(LocalPalette.current.bg)) {
-                    HomeScreen(app, FocusRequester(), {}, {}, { it() })
+                    HomeScreen(app, remember { FocusRequester() }, {}, {}, { it() })
                 }
             }
         }
