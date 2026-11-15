@@ -54,7 +54,7 @@ object NetStatus {
             caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "mobile"
             else -> if (vpn) "vpn" else "other"
         }
-        val sig = caps.signalStrength.takeIf { it != NetworkCapabilities.SIGNAL_STRENGTH_UNSPECIFIED }
+        val sig = if (android.os.Build.VERSION.SDK_INT >= 29) caps.signalStrength.takeIf { it != NetworkCapabilities.SIGNAL_STRENGTH_UNSPECIFIED } else null
         val bars = sig?.let { rssiBars(it) } ?: -1
         _state.value = NetInfo(kind, caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED), vpn, bars, caps.linkDownstreamBandwidthKbps / 1000)
     }
