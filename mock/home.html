@@ -175,6 +175,29 @@ body {
 .memo::before { content: ""; position: absolute; top: -9px; left: 50%; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,.4); }
 .memo small { display: block; font-size: 14px; opacity: .65; margin-top: 4px; }
 
+/* 動画の見本（ほかのアプリで見ているところ） */
+.video { position: absolute; inset: 0; z-index: 8; display: none; background: linear-gradient(135deg, #1e5a7a, #0e2a3a 50%, #3a1e4a); }
+.video.on { display: block; }
+.video::before { content: "🐳"; position: absolute; left: 50%; top: 46%; font-size: 260px; transform: translate(-50%, -50%); animation: swim 6s ease-in-out infinite alternate; }
+@keyframes swim { to { transform: translate(-40%, -54%); } }
+.video .bar { position: absolute; left: 96px; right: 96px; bottom: 60px; height: 6px; background: rgba(255,255,255,.25); border-radius: 3px; }
+.video .bar i { display: block; width: 38%; height: 100%; background: #e50914; border-radius: 3px; }
+.video .ttl { position: absolute; left: 96px; bottom: 84px; color: #fff; font-size: 26px; opacity: .8; }
+
+/* インターホンなどの知らせ（動画の上にも重ねる。操作は奪わない） */
+.notice { position: absolute; right: 64px; top: 56px; width: 620px; z-index: 9; display: flex; gap: 22px; align-items: center;
+  padding: 22px 26px; border-radius: 22px; background: rgba(18,20,26,.92); color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,.55);
+  border: 2px solid var(--accent); transform: translateY(-140%); opacity: 0; transition: transform .45s cubic-bezier(.2,.9,.2,1.1), opacity .3s; }
+.notice.on { transform: none; opacity: 1; }
+.notice .bell { width: 92px; height: 92px; flex: none; border-radius: 22px; display: grid; place-items: center; font-size: 52px; background: color-mix(in srgb, var(--accent) 30%, transparent); animation: ring 1s ease-in-out 3; }
+@keyframes ring { 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+.notice b { display: block; font-size: 32px; }
+.notice span { display: block; font-size: 20px; opacity: .75; margin-top: 4px; }
+.notice small { display: block; font: 16px var(--mono); color: var(--accent); margin-top: 8px; letter-spacing: .06em; }
+.notice .left { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--accent); width: 100%; border-radius: 0 0 0 20px; }
+.notice.on .left { animation: drain 10s linear forwards; }
+@keyframes drain { to { width: 0; } }
+
 /* 操作のヒント */
 .hint { position: absolute; left: 96px; bottom: 16px; font: 15px var(--mono); color: var(--faint); letter-spacing: .06em; z-index: 3; }
 .hint b { color: var(--muted); font-weight: 400; }
@@ -203,6 +226,10 @@ body {
     <button id="sd-memo" data-side="memo" aria-pressed="false">メモ</button>
     <button id="sd-none" data-side="none" aria-pressed="false">なし</button>
   </div>
+  <div class="seg" role="group" aria-label="知らせの見本">
+    <button id="nt-home" data-notice="home" aria-pressed="false">🔔 ホームで</button>
+    <button id="nt-video" data-notice="video" aria-pressed="false">🔔 動画の上で</button>
+  </div>
 </div>
 
 <div class="stage-wrap" id="wrap">
@@ -230,6 +257,12 @@ body {
         <div class="memo" style="--mc:#ffd3e0;--r:-.5deg">ピアノの はっぴょうかい 12/14<small>ママ・3 日まえ</small></div>
       </div>
     </div>
+    <div class="video" id="video"><div class="ttl">どうぶつ ずかん　だい 3 わ</div><div class="bar"><i></i></div></div>
+    <div class="notice" id="notice" role="status" aria-live="polite">
+      <div class="bell">🔔</div>
+      <div><b>げんかんに だれか きたよ</b><span>dearis インターホン ・ いま</span><small>けってい：カメラを みる　／　10 びょうで きえる</small></div>
+      <div class="left"></div>
+    </div>
     <div class="calhead" id="calhead">NEXT 14 DAYS</div>
     <div class="cal" id="cal"></div>
     <div class="hint"><b>← →</b> まとまり　<b>↑ ↓</b> えらぶ　<b>決定</b> ひらく　<b>メニュー</b> ★・ならべかえ</div>
@@ -245,7 +278,8 @@ body {
   <div class="notes">
     <strong>試してほしいこと</strong>：テレビの画面を押してから矢印キー（スマホは左のリモコン）で動かします。<br>
     下の 2 週間の帯は背景としてさりげなく出しています。<strong>カレンダー</strong>まで ← で行くと、帯が 4 週間の表に広がります（月曜はじまり）。↓ で日にちを選べます。<br>
-    予定・天気・アプリは見本です。
+    上の「🔔」で、インターホンの知らせの出かたを試せます（動画の上でも出ます。操作は奪いません）。<br>
+    予定・天気・アプリ・写真・メモは見本です。
   </div>
 </div>
 
@@ -370,6 +404,17 @@ body {
   document.querySelectorAll('.seg button[data-side]').forEach(b => b.addEventListener('click', () => {
     document.getElementById('side').dataset.mode = b.dataset.side;
     document.querySelectorAll('.seg button[data-side]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  }));
+
+  // ---- インターホンの知らせ（見本）。本物は スマホの通知 → Pushbullet（または Home.Hatch）→ テレビ
+  const notice = document.getElementById('notice'), video = document.getElementById('video');
+  let nt = 0;
+  document.querySelectorAll('.seg button[data-notice]').forEach(b => b.addEventListener('click', () => {
+    clearTimeout(nt);
+    video.classList.toggle('on', b.dataset.notice === 'video');
+    notice.classList.remove('on'); void notice.offsetWidth;
+    setTimeout(() => notice.classList.add('on'), 400);
+    nt = setTimeout(() => { notice.classList.remove('on'); setTimeout(() => video.classList.remove('on'), 1500); }, 10400);
   }));
 
   // ---- 家族の写真（見本。本物は Photo.Hatch／Synology Photos の「家族共有」からランダムに）
