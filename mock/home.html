@@ -211,6 +211,59 @@ body {
 .notice.on .left { animation: drain 10s linear forwards; }
 @keyframes drain { to { width: 0; } }
 
+
+/* 写真を背景いっぱいに（左と下は暗くして文字を読みやすく） */
+.bgphoto { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
+.bgphoto .ph { position: absolute; inset: 0; opacity: 0; transition: opacity 2s; display: grid; place-items: center; font-size: 420px; }
+.bgphoto .ph.on { opacity: 1; animation: kb 16s ease-out forwards; }
+.bgphoto::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 75%, transparent) 0%, transparent 28%),
+              linear-gradient(90deg, color-mix(in srgb, var(--bg) 92%, transparent) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 42%, color-mix(in srgb, var(--bg) 20%, transparent) 80%),
+              linear-gradient(0deg, color-mix(in srgb, var(--bg) 94%, transparent) 0%, transparent 40%),
+              color-mix(in srgb, var(--bg) 30%, transparent); }
+.tv.bg-photo .bgphoto { opacity: 1; }
+.bgcap { position: absolute; right: 96px; top: 180px; z-index: 1; color: #fff; text-align: right; text-shadow: 0 2px 12px rgba(0,0,0,.7); opacity: 0; transition: opacity .8s; }
+.tv.bg-photo .bgcap { opacity: .92; }
+.bgcap b { display: block; font: 300 46px/1 var(--display); }
+.bgcap span { font-size: 22px; }
+
+/* 再生中のもの（左上） */
+.np { position: absolute; left: 96px; top: 34px; z-index: 3; display: none; align-items: center; gap: 18px; padding: 10px 22px 10px 10px; border-radius: 18px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 1px solid var(--line); }
+.tv.playing .np { display: flex; }
+.tv.playing .brand, .tv.split .brand { display: none; }
+.np .art { width: 88px; height: 88px; border-radius: 12px; background: linear-gradient(135deg, #8ec5fc, #e0c3fc); display: grid; place-items: center; font-size: 44px; flex: none; }
+.np b { display: flex; align-items: center; font-size: 26px; }
+.np span { display: block; font-size: 17px; color: var(--muted); margin-top: 2px; }
+.np .pb { margin-top: 10px; width: 340px; max-width: 100%; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.np .pb i { display: block; height: 100%; width: 42%; background: var(--accent); animation: prog 90s linear infinite; }
+@keyframes prog { from { width: 30%; } to { width: 100%; } }
+.np .eq { display: inline-flex; gap: 3px; height: 16px; align-items: flex-end; margin-left: 12px; }
+.np .eq u { width: 4px; height: 100%; background: var(--accent); animation: eq .8s ease-in-out infinite alternate; }
+.np .eq u:nth-child(2) { animation-delay: -.3s; } .np .eq u:nth-child(3) { animation-delay: -.55s; }
+@keyframes eq { from { height: 20%; } to { height: 100%; } }
+.np .app { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-left: 18px; border-left: 1px solid var(--line); font: 14px var(--mono); color: var(--muted); }
+.np .app i { width: 42px; height: 42px; border-radius: 11px; background: var(--c4); display: grid; place-items: center; font-style: normal; font-size: 22px; }
+
+/* 操作しないと薄く → 消える（キーで戻る） */
+.tv .xbar, .tv .hint, .tv .calhead, .tv .np, .tv .hud .net, .tv .hud .wx { transition: opacity .9s; }
+.tv.idle1 .xbar, .tv.idle1 .items, .tv.idle1 .splitl, .tv.idle1 .side, .tv.idle1 .cal, .tv.idle1 .calhead, .tv.idle1 .hint, .tv.idle1 .calnote, .tv.idle1 .detail, .tv.idle1 .reader { opacity: .22 !important; }
+.tv.idle2 .xbar, .tv.idle2 .items, .tv.idle2 .splitl, .tv.idle2 .side, .tv.idle2 .cal, .tv.idle2 .calhead, .tv.idle2 .hint, .tv.idle2 .calnote, .tv.idle2 .detail, .tv.idle2 .reader, .tv.idle2 .hud .net { opacity: 0 !important; }
+.idlemark { position: absolute; left: 96px; bottom: 30px; z-index: 3; font: 15px var(--mono); color: var(--muted); opacity: 0; transition: opacity .9s; }
+.tv.idle2 .idlemark { opacity: .7; }
+
+/* 上下にわける：帯の上に よくつかう物、下に たまに つかう物 */
+.tv.split .xbar { top: 380px; }
+.tv.split .items { display: none; }
+.splitl { position: absolute; inset: 0; z-index: 2; display: none; pointer-events: none; }
+.tv.split .splitl { display: block; }
+.splitl .it { position: absolute; left: 230px; width: 820px; pointer-events: auto; transition: top .3s cubic-bezier(.2,.8,.2,1), opacity .25s; }
+.splitl .it.up { opacity: .8; }
+.splitl .tag { position: absolute; left: 96px; font: 14px var(--mono); letter-spacing: .12em; color: var(--faint); writing-mode: vertical-rl; }
+.tv.split:not(.cal-open) .cal, .tv.split:not(.cal-open) .calhead { opacity: 0; pointer-events: none; }
+.tv.split .side { display: none; }
+.side[data-mode="memo"] { justify-content: flex-end; }
+.tv.split.cal-open .splitl { display: none; }
+
 /* 操作のヒント */
 .hint { position: absolute; left: 96px; bottom: 16px; font: 15px var(--mono); color: var(--faint); letter-spacing: .06em; z-index: 3; }
 .hint b { color: var(--muted); font-weight: 400; }
@@ -234,20 +287,32 @@ body {
     <button id="sk-night" data-skin="night" aria-pressed="false">おほしさま</button>
   </div>
   <div class="seg" role="group" aria-label="余白">
-    <button id="sd-both" data-side="both" aria-pressed="true">写真＋メモ</button>
+    <button id="sd-bg" data-side="bg" aria-pressed="true">写真を背景＋メモ</button>
+    <button id="sd-both" data-side="both" aria-pressed="false">写真＋メモ</button>
     <button id="sd-photo" data-side="photo" aria-pressed="false">写真</button>
     <button id="sd-memo" data-side="memo" aria-pressed="false">メモ</button>
     <button id="sd-none" data-side="none" aria-pressed="false">なし</button>
   </div>
   <div class="seg" role="group" aria-label="知らせの見本">
+    <button id="op-np" data-opt="playing" aria-pressed="true">♪ 再生中</button>
+    <button id="op-split" data-opt="split" aria-pressed="false">↕ 上下にわける</button>
     <button id="nt-home" data-notice="home" aria-pressed="false">🔔 ホームで</button>
     <button id="nt-video" data-notice="video" aria-pressed="false">🔔 動画の上で</button>
   </div>
 </div>
 
 <div class="stage-wrap" id="wrap">
-  <div class="tv" id="tv" data-skin="dark" tabindex="0" aria-label="テレビのホーム画面（矢印キーで操作）">
+  <div class="tv bg-photo playing" id="tv" data-skin="dark" tabindex="0" aria-label="テレビのホーム画面（矢印キーで操作）">
+    <div class="bgphoto" id="bgphoto"></div>
+    <div class="bgcap" id="bgcap"><b id="bgT">2025.08</b><span id="bgS">うみ</span></div>
     <div class="brand"><b>THETA <i>//</i> TVHOME</b><span id="greet">こんにちは！</span></div>
+    <div class="np" id="np">
+      <div class="art">🎈</div>
+      <div><b>そらいろの ふうせん<span class="eq"><u></u><u></u><u></u></span></b><span>こどもの うた ・ アルバム「そらいろ」</span><div class="pb"><i></i></div></div>
+      <div class="app"><i>♪</i>MUSIC</div>
+    </div>
+    <div class="splitl" id="splitl"></div>
+    <div class="idlemark">なにか ボタンを おすと メニューが でるよ</div>
     <div class="hud">
       <div class="clock"><span class="t" id="time">10:24</span><span class="d" id="date">11/15（日）</span></div>
       <div class="wx"><span class="ic">🌤</span><span class="tp">14°</span><span class="sm">はれ・くもり<br>18° / 9°  ☂10%</span></div>
@@ -261,7 +326,7 @@ body {
     <div class="items" id="items"><div class="list" id="list"></div></div>
     <div class="calnote" id="calnote">↓ で日にちへ　<b>戻る</b> で帯にもどる</div>
     <div class="detail" id="detail"></div>
-    <div class="side" id="side" data-mode="both">
+    <div class="side" id="side" data-mode="memo">
       <div class="photo" id="photo"><div class="src">PHOTO.HATCH</div><div class="cap"><b id="capT">2025.08</b><span id="capS">うみ</span></div></div>
       <div class="memos">
         <h3>PINNED // MEMO</h3>
@@ -291,7 +356,7 @@ body {
   </div>
   <div class="notes">
     <strong>試してほしいこと</strong>：テレビの画面を押してから矢印キー（スマホは左のリモコン）で動かします。<br>
-    ← → はループします（せってい の つぎは カレンダー）。やること は 決定で チェック、メール は 決定で ひらく（戻る で とじる）。<br>下の 2 週間の帯は背景としてさりげなく出しています。<strong>カレンダー</strong>まで ← で行くと、帯が 4 週間の表に広がります（月曜はじまり）。↓ で日にちを選べます。<br>
+    何も押さないと 5 秒でメニューが薄く、25 秒で消えます（戻る でもすぐ消える）。なにかキーで戻ります。<br>← → はループします（せってい の つぎは カレンダー）。やること は 決定で チェック、メール は 決定で ひらく（戻る で とじる）。<br>下の 2 週間の帯は背景としてさりげなく出しています。<strong>カレンダー</strong>まで ← で行くと、帯が 4 週間の表に広がります（月曜はじまり）。↓ で日にちを選べます。<br>
     上の「🔔」で、インターホンの知らせの出かたを試せます（動画の上でも出ます。操作は奪いません）。<br>
     予定・天気・アプリ・写真・メモは見本です。
   </div>
@@ -338,11 +403,17 @@ body {
       ['👩', 'ママ', '090-…・メール・ビデオ'], ['👨', 'パパ', '080-…・メール・ビデオ'], ['👵', 'ばあば', 'ビデオ で はなす'], ['👴', 'じいじ', 'ビデオ で はなす'], ['📇', 'ぜんぶの れんらくさき', 'Google の れんらくさき ・ 128 にん']] },
     { k: 'tv', ic: '📺', lb: 'テレビ', c: '--c1', items: [['📺', 'テレビ', 'いまの ばんぐみ'], ['📡', 'ちデジ'], ['🛰', 'BS'], ['⏺', 'ろくが', 'USB HDD'], ['🎮', 'ゲーム', 'HDMI 2']] },
     { k: 'fav', ic: '⭐', lb: 'すき', c: '--c3', items: [['N', 'Netflix'], ['▶', 'YouTube'], ['P', 'Prime Video'], ['♪', 'Theta Music', 'NAS の おんがく'], ['📚', 'Theta Book', 'つづきから']] },
+    { k: 'music', ic: '🎵', lb: 'おんがく', c: '--c4',
+      up: [['💿', 'つづきから', 'アルバム「そらいろ」 ・ Theta Music'], ['🎧', 'プレイリスト「あさ」', 'NAS'], ['🔀', 'ランダム', 'NAS の おんがく 3,812 きょく']],
+      down: [['🎵', 'Theta Music を ひらく'], ['A', 'Amazon Music'], ['S', 'Spotify']] },
     { k: 'nas', ic: '🗄', lb: 'NAS', c: '--c4', items: [['🎬', 'えいが', 'Jellyfin'], ['♪', 'おんがく'], ['🖼', 'しゃしん', 'きょうの おもいで'], ['📚', 'ほん'], ['💾', 'USB の どうが', 'キャッシュ 32GB']] },
     { k: 'apps', ic: '▦', lb: 'アプリ', c: '--c5', items: [['🌐', 'ブラウザ'], ['🔒', 'Tailscale'], ['🎵', 'Spotify'], ['📺', 'TVer'], ['📰', 'ニュース']] },
     { k: 'set', ic: '⚙', lb: 'せってい', c: '--c3', items: [['⟳', 'こうしん', 'さいしん です'], ['⏱', 'タイマー', 'あと 15 ふん'], ['🎨', 'スキン'], ['⚙', 'せってい']] },
   ];
+  CATS.forEach(c => { if (!c.items) c.items = [...c.up, ...c.down]; });
   const CAL = CATS.findIndex(c => c.k === 'cal');
+  let split = false; const pos2 = {};
+  const upOf = c => c.up || c.items.slice(0, 2), downOf = c => c.down || c.items.slice(2);
   let cat = CATS.findIndex(c => c.k === 'tv'); const pos = {}; let inGrid = false, reading = -1, sel = off(today) + ((today.getDay() + 6) % 7); // 表の中で選んでいる日（0〜27）
   const prevD = {};
 
@@ -394,6 +465,7 @@ body {
         : '';
       return;
     }
+    if (split) { renderSplit(c); return; }
     // 中身：選んだ物を 2 番目に置き、前の物は 1 つだけ薄く
     const idx = pos[c.k] || 0;
     listEl.style.setProperty('--cc', 'var(' + c.c + ')');
@@ -410,10 +482,41 @@ body {
       el.addEventListener('click', () => { const i = +el.dataset.i; if (i === idx) key('Enter'); else { pos[c.k] = i; reading = -1; render(); } });
     });
   }
+  // 上下にわける：帯（y=380〜528）の上に よくつかう物（近いほど よくつかう）、下に たまに つかう物
+  function renderSplit(c) {
+    const sp = document.getElementById('splitl'), up = upOf(c), dn = downOf(c), s0 = pos2[c.k] || 0;
+    const row = (it, idx, cls, top) => '<div class="it' + (idx === s0 ? ' on' : '') + cls + '" data-s="' + idx + '" style="top:' + top + 'px;--cc:var(' + c.c + ')"><div class="bx">' + it[0] + '</div><div><div class="tx">' + it[1] + '</div><div class="sub">' + (it[2] || 'けってい で ひらく') + '</div></div></div>';
+    let html = '<div class="tag" style="top:150px">よくつかう</div><div class="tag" style="top:600px">たまに</div>';
+    let y = 372; // 上の物は帯の上から上へ
+    up.forEach((it, j) => { const idx = -(j + 1), h = idx === s0 ? 124 : 78; y -= h; html += row(it, idx, ' up', y); });
+    y = 548; // 下の物は帯の下から下へ
+    dn.forEach((it, i) => { const h = i === s0 ? 124 : 78; if (y < 1000) html += row(it, i, '', y); y += h; });
+    sp.innerHTML = html;
+    [...sp.querySelectorAll('.it')].forEach(el => el.addEventListener('click', () => { const v = +el.dataset.s; if (v === s0) flash(el); else { pos2[c.k] = v; render(); } }));
+  }
   function flash(el) { el.animate([{ transform: 'scale(1)' }, { transform: 'scale(.97)' }, { transform: 'scale(1)' }], { duration: 220 }); }
 
+  // 操作しないと 5 秒で薄く、25 秒で消える。戻る（いちばん上で）でもすぐ消える。キーで戻る
+  let last = Date.now(), idle = 0;
+  function setIdle(n) { idle = n; tv.classList.toggle('idle1', n === 1); tv.classList.toggle('idle2', n === 2); }
+  setInterval(() => { const t = (Date.now() - last) / 1000; if (idle < 2 && t >= 25) setIdle(2); else if (idle < 1 && t >= 5) setIdle(1); }, 500);
+  tv.addEventListener('pointerdown', () => { last = Date.now(); if (idle) setIdle(0); });
+
   function key(k) {
+    last = Date.now();
+    if (idle === 2) { setIdle(0); return; } // 消えているときは、出すだけ
+    if (idle === 1) setIdle(0);
     const c = CATS[cat];
+    if (split && c.k !== 'cal') {
+      const N = CATS.length, up = upOf(c), dn = downOf(c);
+      if (k === 'ArrowLeft') cat = (cat - 1 + N) % N;
+      else if (k === 'ArrowRight') cat = (cat + 1) % N;
+      else if (k === 'ArrowUp') pos2[c.k] = Math.max(-up.length, (pos2[c.k] || 0) - 1);
+      else if (k === 'ArrowDown') pos2[c.k] = Math.min(dn.length - 1, (pos2[c.k] || 0) + 1);
+      else if (k === 'Escape' || k === 'Backspace') { setIdle(2); return; }
+      else if (k === 'Enter') { const el = document.querySelector('#splitl .on'); if (el) flash(el); }
+      render(); return;
+    }
     if (c.k === 'cal' && inGrid) {
       if (k === 'ArrowLeft') sel = Math.max(0, sel - 1);
       else if (k === 'ArrowRight') sel = Math.min(27, sel + 1);
@@ -423,6 +526,7 @@ body {
       render(); return;
     }
     const N = CATS.length;
+    if ((k === 'Escape' || k === 'Backspace') && reading < 0) { setIdle(2); return; }
     if ((k === 'Escape' || k === 'Backspace') && reading >= 0) reading = -1;
     else if (k === 'ArrowLeft') { cat = (cat - 1 + N) % N; inGrid = false; reading = -1; }
     else if (k === 'ArrowRight') { cat = (cat + 1) % N; inGrid = false; reading = -1; }
@@ -445,8 +549,15 @@ body {
     tv.dataset.skin = b.dataset.skin;
     document.querySelectorAll('.seg button[data-skin]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   }));
+  document.querySelectorAll('.seg button[data-opt]').forEach(b => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(on));
+    if (b.dataset.opt === 'split') { split = on; tv.classList.toggle('split', on); render(); }
+    else tv.classList.toggle('playing', on);
+  }));
   document.querySelectorAll('.seg button[data-side]').forEach(b => b.addEventListener('click', () => {
-    document.getElementById('side').dataset.mode = b.dataset.side;
+    tv.classList.toggle('bg-photo', b.dataset.side === 'bg');
+    document.getElementById('side').dataset.mode = b.dataset.side === 'bg' ? 'memo' : b.dataset.side;
     document.querySelectorAll('.seg button[data-side]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   }));
 
@@ -471,9 +582,14 @@ body {
   ];
   const photoEl = document.getElementById('photo');
   const layers = PH.map(p => { const d = document.createElement('div'); d.className = 'ph'; d.style.background = p[0]; d.textContent = p[1]; photoEl.insertBefore(d, photoEl.firstChild); return d; });
+  const bgEl = document.getElementById('bgphoto');
+  const bgLayers = PH.map(p => { const d = document.createElement('div'); d.className = 'ph'; d.style.background = p[0]; d.textContent = p[1]; bgEl.appendChild(d); return d; });
   let pi = Math.floor(Math.random() * PH.length);
   function nextPhoto() {
     layers.forEach((l, i) => l.classList.toggle('on', i === pi));
+    bgLayers.forEach((l, i) => l.classList.toggle('on', i === pi));
+    document.getElementById('bgT').textContent = PH[pi][2];
+    document.getElementById('bgS').textContent = PH[pi][3];
     document.getElementById('capT').textContent = PH[pi][2];
     document.getElementById('capS').textContent = PH[pi][3];
     pi = (pi + 1) % PH.length;
