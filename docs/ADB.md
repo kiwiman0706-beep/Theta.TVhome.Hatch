@@ -132,6 +132,46 @@ adb shell cmd package set-home-activity <純正のホームの component>
 
 - Android TV の更新で純正に戻ることがある（そのときは同じ手順でもう一度）
 
+## 6.5 リモコンの専用ボタンを調べる（アプリ・U-NEXT など）
+
+重ねるバー・タイマーを「アプリ」ボタンや使っていないボタン（U-NEXT）に割り当てるための下調べ。ボタンごとに、**どの層で何が起きるか**を記録する。
+
+```bash
+adb shell getevent -lt
+```
+
+↑を動かしたままボタンを押す → 出たキー名・スキャンコードを記録（Ctrl+C で止める）。
+
+```bash
+adb shell dumpsys input | grep -iE "KeyLayoutFile|KeyCharacterMapFile"
+```
+
+```bash
+adb logcat -c
+```
+
+```bash
+adb logcat | grep -iE "KeyEvent|keycode|GLOBAL_BUTTON|START u0|am_create_activity"
+```
+
+↑を動かしたままボタンを押す → 開いた画面（Intent の action・component）や、送られたブロードキャストを記録。
+
+```bash
+adb shell cmd package query-activities -a android.intent.action.ALL_APPS
+```
+
+記録のしかた（`docs/device/4T-C65DQ2.md`）：
+
+| ボタン | getevent のキー | Android のキーコード | 押すと起きること（開く画面の Intent・ブロードキャスト） |
+| --- | --- | --- | --- |
+| アプリ | | | |
+| U-NEXT | | | |
+| Netflix など | | | |
+
+- 開く画面が決まった Intent（例 `android.intent.action.ALL_APPS`）なら、TVhome がその Intent を受けるだけで割り当てられる（いちばん安定。ユーザー補助は要らない）
+- キーコードとして届くだけなら、ユーザー補助サービスで受ける
+- メーカーの仕組み（`GLOBAL_BUTTON` のブロードキャストなど）で直接アプリが開くなら、横取りは難しい
+
 ## 7. 記録すること（docs/device/4T-C65DQ2.md）
 
 - Android の版・ビルド、純正のホームの component
