@@ -20,6 +20,8 @@ import androidx.compose.ui.focus.FocusRequester
 import app.thetahatch.tvhome.hub.UpdateHub
 import app.thetahatch.tvhome.skin.paletteFor
 import app.thetahatch.tvhome.ui.AllAppsScreen
+import app.thetahatch.tvhome.ui.CrossBarLayout
+import app.thetahatch.tvhome.ui.KidsLayout
 import app.thetahatch.tvhome.ui.HomeScreen
 import app.thetahatch.tvhome.ui.LocalPalette
 import app.thetahatch.tvhome.ui.MenuOverlay
@@ -60,7 +62,11 @@ class MainActivity : ComponentActivity() {
                         "settings" -> SettingsScreen(app, go) { title, done -> pinAsk = title to done }
                         "updates" -> UpdatesScreen(app)
                         "apps" -> AllAppsScreen(app, { menu = it }, guarded)
-                        else -> HomeScreen(app, homeFocus, go, { menu = it }, guarded)
+                        else -> when (app.store.layout.also { tick }) {
+                            "bar" -> CrossBarLayout(app, homeFocus, go, { menu = it }, guarded)
+                            "simple" -> HomeScreen(app, homeFocus, go, { menu = it }, guarded)
+                            else -> KidsLayout(app, homeFocus, go, { menu = it }, guarded)
+                        }
                     }
                     menu?.let { m -> MenuOverlay(m) { menu = null } }
                     pinAsk?.let { (title, done) -> PinPad(title, { pin -> pinAsk = null; done(pin) }, { pinAsk = null }) }

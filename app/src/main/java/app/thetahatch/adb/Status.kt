@@ -32,6 +32,8 @@ object Status {
                 .put("autoUpdate", s.autoUpdate)
                 .put("lastCheck", s.lastUpdateCheck))
         val settings = JSONObject()
+            .put("ui.layout", s.layout)
+            .put("kids.theme", s.kidTheme)
             .put("weather.place", s.weatherPlace)
             .put("kids.mode", s.kidsMode)
             .put("kids.pin", s.hasPin())

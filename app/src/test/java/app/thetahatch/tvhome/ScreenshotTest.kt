@@ -10,7 +10,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
+import app.thetahatch.tvhome.data.AppItem
 import app.thetahatch.tvhome.data.Day
+import app.thetahatch.tvhome.ui.CrossBarLayout
+import app.thetahatch.tvhome.ui.KidsLayout
 import app.thetahatch.tvhome.data.Entry
 import app.thetahatch.tvhome.data.Event
 import app.thetahatch.tvhome.data.Forecast
@@ -43,6 +46,10 @@ class ScreenshotTest {
             Entry("recordings", "ろくが", "⏺", null, "none", "fixed"),
             Entry("input:hdmi2", "ゲーム", "🎮", android.content.Intent(), "set", "input"),
         )
+        val fake = listOf("Netflix" to "com.netflix.ninja", "YouTube" to "com.google.android.youtube.tv", "Prime Video" to "com.amazon.amazonvideo.livingroom", "Theta Music" to "app.thetahatch.music", "ブラウザ" to "x.browser", "Tailscale" to "com.tailscale.ipn")
+            .map { (l, p) -> AppItem(p, l, android.content.Intent().setClassName(p, "$p.Main"), false) }
+        app.state.apps.value = fake
+        app.store.favorites = fake.take(4).map { it.pkg }
         val t = System.currentTimeMillis()
         app.state.forecast.value = Forecast(14.0, 1, true, listOf(Day(t, 1, 18.0, 9.0, 10), Day(t, 61, 15.0, 10.0, 70), Day(t, 0, 19.0, 8.0, 0)), t)
         app.state.events.value = listOf(
@@ -52,14 +59,21 @@ class ScreenshotTest {
         )
     }
 
-    private fun shot(skin: String, name: String) {
+    private fun shot(skin: String, name: String, layout: String = "simple", kid: String = "usagi") {
         val app = ApplicationProvider.getApplicationContext<TvHomeApp>()
         app.store.skin = skin
+        app.store.layout = layout
+        app.store.kidTheme = kid
         sample(app)
         compose.setContent {
             CompositionLocalProvider(LocalPalette provides paletteFor(skin, true)) {
                 Box(Modifier.fillMaxSize().background(LocalPalette.current.bg)) {
-                    HomeScreen(app, remember { FocusRequester() }, {}, {}, { it() })
+                    val f = remember { FocusRequester() }
+                    when (layout) {
+                        "kids" -> KidsLayout(app, f, {}, {}, { it() })
+                        "bar" -> CrossBarLayout(app, f, {}, {}, { it() })
+                        else -> HomeScreen(app, f, {}, {}, { it() })
+                    }
                 }
             }
         }
@@ -69,6 +83,10 @@ class ScreenshotTest {
 
     @Test fun homeDark() = shot("dark", "home-dark")
     @Test fun homePop() = shot("pop", "home-pop")
+    @Test fun kids() = shot("dark", "kids-usagi", "kids")
+    @Test fun kidsNight() = shot("dark", "kids-hoshi", "kids", "hoshi")
+    @Test fun bar() = shot("dark", "bar-dark", "bar")
+    @Test fun barLight() = shot("braun", "bar-braun", "bar")
 
     @Test fun pin() {
         compose.setContent {

@@ -59,6 +59,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+val LAYOUTS = listOf("kids", "bar", "simple")
 val SKINS = listOf("dark", "system", "light", "pop", "alert", "scifi", "term", "braun", "soft", "window", "lcd")
 
 @Composable
@@ -89,9 +90,21 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
     Page("せってい", first) {
         item { SectionTitle("見た目") }
         item {
-            RowButton("スキン", s.skin, focusRequester = first, onClick = {
+            val names = mapOf("kids" to "キッズ", "bar" to "クロスバー", "simple" to "たな")
+            RowButton("ホームの形", names[s.layout] ?: s.layout, focusRequester = first, onClick = {
+                s.layout = LAYOUTS[(LAYOUTS.indexOf(s.layout) + 1) % LAYOUTS.size]; changed()
+            }, note = "キッズ（キッズホーム風）・クロスバー（横にまとまり、縦に中身）・たな（横の棚）")
+        }
+        item {
+            RowButton("キッズの いろ", kidThemeById(s.kidTheme).let { it.mascot + " " + it.name }, onClick = {
+                val i = KidThemes.indexOfFirst { it.id == s.kidTheme }
+                s.kidTheme = KidThemes[(i + 1) % KidThemes.size].id; changed()
+            }, note = "ホームの形が「キッズ」のとき")
+        }
+        item {
+            RowButton("スキン", s.skin, onClick = {
                 s.skin = SKINS[(SKINS.indexOf(s.skin) + 1) % SKINS.size]; changed()
-            }, note = "押すたびに切り替わります（シリーズ共通のスキン）")
+            }, note = "クロスバー・たな・設定の画面の色（シリーズ共通のスキン）")
         }
 
         item { SectionTitle("子ども") }

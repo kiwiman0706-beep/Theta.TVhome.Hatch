@@ -16,6 +16,16 @@ class Store(context: Context) {
         get() = prefs.getString("ui.skin", "dark") ?: "dark"
         set(v) = prefs.edit().putString("ui.skin", v).apply()
 
+    /** ホームの形：kids（キッズホーム風）・bar（クロスバー）・simple（棚）。 */
+    var layout: String
+        get() = prefs.getString("ui.layout", "kids") ?: "kids"
+        set(v) = prefs.edit().putString("ui.layout", v).apply()
+
+    /** キッズ風のときの色とマスコット（usagi・neko・kuma・dino・unicorn・umi・hoshi）。 */
+    var kidTheme: String
+        get() = prefs.getString("kids.theme", "usagi") ?: "usagi"
+        set(v) = prefs.edit().putString("kids.theme", v).apply()
+
     var autoUpdate: Boolean
         get() = prefs.getBoolean("update.auto", true)
         set(v) = prefs.edit().putBoolean("update.auto", v).apply()
