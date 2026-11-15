@@ -21,13 +21,21 @@ class TvHomeApp : Application(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration get() = Configuration.Builder().build()
 
+    /** セーフモード：ネット・写真・動き・再生中を止める（レスキュー画面から）。 */
+    @Volatile var safeMode = false
+
     override fun onCreate() {
         super.onCreate()
+        app.thetahatch.tvhome.rescue.Rescue.install(this)
+        // レスキューのプロセスでは本体の準備をしない（本体が壊れていても開けるように）
+        if (android.os.Build.VERSION.SDK_INT >= 28 && Application.getProcessName().endsWith(":rescue")) return
+        app.thetahatch.tvhome.rescue.Rescue.watchMainThread(this)
         store = Store(this)
         state = HomeState(this)
         Catalog.load(this)
         UpdateWorker.schedule(this)
-        app.thetahatch.tvhome.data.NetStatus.start(this)
+        runCatching { app.thetahatch.tvhome.data.NetStatus.start(this) }
+        runCatching { app.thetahatch.tvhome.media.NowPlaying.start(this) }
     }
 
     /** 設定が外（ADB・ほかのアプリ）から変わった。 */

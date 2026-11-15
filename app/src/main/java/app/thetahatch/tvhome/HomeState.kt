@@ -1,5 +1,8 @@
 package app.thetahatch.tvhome
 
+import app.thetahatch.tvhome.rescue.Rescue
+import app.thetahatch.tvhome.rescue.RescueActivity
+import app.thetahatch.tvhome.media.NowPlaying
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import app.thetahatch.tvhome.data.AppItem
@@ -53,6 +56,8 @@ class HomeState(private val app: TvHomeApp) {
         reloadApps()
         refreshWeather()
         refreshCalendar()
+        // セーフモード、または最近落ちた・固まったときは、自動の更新をしない（壊れた版を重ねて入れないため）
+        if (app.safeMode || Rescue.recentTrouble(app) > 0) return
         // 12 時間より前に確かめたきりなら、更新も確かめる（Worker が止められている端末のため）
         if (store.autoUpdate && System.currentTimeMillis() - store.lastUpdateCheck > 12 * 3600_000L) {
             store.lastUpdateCheck = System.currentTimeMillis()
@@ -61,6 +66,7 @@ class HomeState(private val app: TvHomeApp) {
     }
 
     fun refreshWeather(force: Boolean = false) {
+        if (app.safeMode) return
         val place = Place.decode(store.weatherPlace) ?: run { forecast.value = null; return }
         if (!force && System.currentTimeMillis() - weatherAt < 30 * 60_000L) return
         weatherAt = System.currentTimeMillis()
@@ -70,6 +76,7 @@ class HomeState(private val app: TvHomeApp) {
     }
 
     fun refreshCalendar(force: Boolean = false) {
+        if (app.safeMode) return
         if (!store.hasSecret("calendar.ics")) { events.value = emptyList(); calendarError.value = null; return }
         if (!force && System.currentTimeMillis() - calendarAt < 30 * 60_000L) return
         calendarAt = System.currentTimeMillis()
@@ -78,10 +85,10 @@ class HomeState(private val app: TvHomeApp) {
                 withContext(Dispatchers.IO) {
                     val urls = store.secret("calendar.ics").split('\n', ' ').map { it.trim() }.filter { it.startsWith("http") }
                     val zone = ZoneId.systemDefault()
-                    // 月のカレンダー（6 週）に出す分：今月 1 日の週の日曜から 42 日
-                    val first = ZonedDateTime.now(zone).toLocalDate().withDayOfMonth(1)
-                    val from = first.minusDays((first.dayOfWeek.value % 7).toLong()).atStartOfDay(zone)
-                    urls.flatMap { u -> Ics.events(Net.get(u.replaceFirst("webcal://", "https://")), from, 42, zone) }.sortedBy { it.start }
+                    // 今週の月曜から 5 週（帯は 2 週、カレンダーを開くと 4 週。キッズ・たな はこれからの分）
+                    val today = ZonedDateTime.now(zone).toLocalDate()
+                    val from = today.minusDays((today.dayOfWeek.value - 1).toLong()).atStartOfDay(zone)
+                    urls.flatMap { u -> Ics.events(Net.get(u.replaceFirst("webcal://", "https://")), from, 35, zone) }.sortedBy { it.start }
                 }
             }.onSuccess { events.value = it; calendarError.value = null }
                 .onFailure { calendarAt = 0; calendarError.value = it.message ?: "読めません" }

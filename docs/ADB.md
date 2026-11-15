@@ -122,7 +122,22 @@ adb shell am broadcast -a app.thetahatch.adb.SET_SECRET -n $W --es key calendar.
 画面を開く：`-a app.thetahatch.adb.OPEN --es screen settings`（home・settings・updates・apps）。
 更新：`-a app.thetahatch.adb.CHECK_UPDATE`、`-a app.thetahatch.adb.UPDATE`。
 
+## 5.5 再生中の表示（任意）
+
+左上に「いま再生中」を出すには、メディアの情報を読む許可が要る（テレビの画面では出せないことが多い）：
+
+```bash
+adb shell cmd notification allow_listener app.thetahatch.tvhome/app.thetahatch.tvhome.media.MediaListener
+```
+
 ## 6. 既定のホームにする（様子を見てから）
+
+**その前に**：レスキューを試しておく（リモコンの「戻る」を すばやく 7 回 → レスキュー画面 →「いつもの（純正の）ホームを開く」）。ADB からは：
+
+```bash
+adb shell am broadcast -a app.thetahatch.adb.OPEN -n $W --es screen rescue
+```
+
 
 ```bash
 adb shell cmd package set-home-activity app.thetahatch.tvhome/.MainActivity
@@ -143,6 +158,12 @@ adb shell cmd package set-home-activity <純正のホームの component>
 ```
 
 - Android TV の更新で純正に戻ることがある（そのときは同じ手順でもう一度）
+- **どうにもならないとき**：このアプリを消せば、純正のホームに戻る
+
+```bash
+adb uninstall app.thetahatch.tvhome
+```
+
 
 ## 6.5 リモコンの専用ボタンを調べる（アプリ・U-NEXT など）
 

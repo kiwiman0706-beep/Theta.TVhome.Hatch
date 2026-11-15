@@ -69,6 +69,32 @@
             </intent-filter>
         </activity>
 
+        <!-- レスキュー：ホームが落ち続ける・固まったときの画面。本体と別のプロセス。テレビのアプリ一覧からも開ける -->
+        <activity
+            android:name=".rescue.RescueActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="TVhome のレスキュー"
+            android:process=":rescue"
+            android:taskAffinity="app.thetahatch.tvhome.rescue"
+            android:theme="@android:style/Theme.Material.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- いま再生中のもの（メディアセッション）を読むための入口。許可は ADB（docs/ADB.md） -->
+        <service
+            android:name=".media.MediaListener"
+            android:exported="true"
+            android:label="TVhome の再生中の表示"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".hub.InstallResultReceiver"
             android:exported="false" />

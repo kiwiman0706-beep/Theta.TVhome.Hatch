@@ -16,6 +16,8 @@ class UpdateWorker(context: Context, params: WorkerParameters) : CoroutineWorker
     override suspend fun doWork(): Result {
         val store = (applicationContext as TvHomeApp).store
         if (!store.autoUpdate) return Result.success()
+        // 最近ホームが落ちた・固まったときは更新しない（レスキューで落ち着いてから）
+        if (app.thetahatch.tvhome.rescue.Rescue.recentTrouble(applicationContext) > 0) return Result.success()
         runCatching { UpdateHub.runAll(applicationContext, install = true, mobile = store.updateMobile, fromWorker = true) }
         store.lastUpdateCheck = System.currentTimeMillis()
         return Result.success()

@@ -1,5 +1,7 @@
 package app.thetahatch.tvhome.ui
 
+import app.thetahatch.tvhome.rescue.Rescue
+import app.thetahatch.tvhome.rescue.RescueActivity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -171,6 +173,9 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
                 if (!ok) app.toast("ADB で切り替えます（README「ホームにする」）")
             }, note = "リモコンのホームボタンでこの画面を出すには、既定のホームに選びます")
         }
+        item { SectionTitle("こまったとき") }
+        item { RowButton("いつもの（純正の）ホームを開く", null, onClick = { if (!Rescue.openStockHome(app)) app.toast("見つかりません") }, note = "このホームがおかしいときの逃げ道。既定のホームは変えません") }
+        item { RowButton("レスキュー画面", null, onClick = { app.startActivity(android.content.Intent(app, RescueActivity::class.java).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }, note = "リモコンの「戻る」を すばやく 7 回でも開けます。テレビのアプリ一覧の「TVhome のレスキュー」からも") }
         item { RowButton("版", app.packageManager.getPackageInfo(app.packageName, 0).versionName, onClick = {}) }
         item { RowButton("テレビの設定を開く", null, onClick = { app.state.launch(Intent(Settings.ACTION_SETTINGS)) }) }
     }

@@ -1,5 +1,8 @@
 package app.thetahatch.adb
 
+import app.thetahatch.tvhome.rescue.Rescue
+import app.thetahatch.tvhome.rescue.RescueActivity
+import app.thetahatch.tvhome.media.NowPlaying
 import android.content.pm.PackageManager
 import android.os.Build
 import app.thetahatch.tvhome.TvHomeApp
@@ -26,6 +29,9 @@ object Status {
             .put("device", JSONObject().put("model", Build.MODEL).put("manufacturer", Build.MANUFACTURER).put("sdk", Build.VERSION.SDK_INT)
                 .put("release", Build.VERSION.RELEASE).put("fingerprint", Build.FINGERPRINT))
             .put("defaultHome", UpdateHub.defaultHome(app))
+            .put("stockHomes", JSONArray(Rescue.otherHomes(app).map { it.flattenToShortString() }))
+            .put("rescue", JSONObject().put("recentTrouble", Rescue.recentTrouble(app)).put("last", Rescue.lastTrouble(app)).put("safeMode", app.safeMode))
+            .put("nowPlaying", NowPlaying.state.value?.let { JSONObject().put("title", it.title).put("pkg", it.pkg) })
             .put("hub", JSONObject()
                 .put("owner", UpdateHub.isOwner(app))
                 .put("canInstall", app.packageManager.canRequestPackageInstalls())

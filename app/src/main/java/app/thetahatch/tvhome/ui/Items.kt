@@ -34,6 +34,8 @@ fun buildCategories(
     go: (String) -> Unit,
     menu: (TileMenu) -> Unit,
     guarded: (() -> Unit) -> Unit,
+    /** false：ぜんぶのアプリは出さない（クロスバーは右上の「ぜんぶのアプリ」から） */
+    withAll: Boolean = true,
 ): List<Category> {
     val s = app.store
     val hidden = s.hidden
@@ -49,14 +51,14 @@ fun buildCategories(
     val fav = s.favorites.mapNotNull { f -> apps.firstOrNull { it.pkg == f } }.map(::appItem)
     val rest = apps.filter { it.pkg !in hidden && it.pkg !in s.favorites }.map(::appItem)
     val hatch = buildList {
-        if (kids) add(Item("all", "ぜんぶのアプリ", "▦", onClick = { guarded { go("apps") } }))
+        if (kids || !withAll) add(Item("all", "ぜんぶのアプリ", "▦", sub = "ホームに だす アプリを えらぶ", onClick = { guarded { go("apps") } }))
         add(Item("updates", "こうしん", "⟳", badge = updates.takeIf { it > 0 }?.toString(), sub = if (updates > 0) "あたらしい版が $updates こ" else null, onClick = { guarded { go("updates") } }))
         add(Item("settings", "せってい", "⚙", onClick = { guarded { go("settings") } }))
     }
     return buildList {
         add(Category("tv", "テレビ", "📺", tv))
         if (fav.isNotEmpty() || !kids) add(Category("fav", "すき", "⭐", fav))
-        if (!kids) add(Category("apps", "アプリ", "▦", rest))
+        if (!kids && withAll) add(Category("apps", "アプリ", "▦", rest))
         add(Category("hatch", "せってい", "⚙", hatch))
     }
 }

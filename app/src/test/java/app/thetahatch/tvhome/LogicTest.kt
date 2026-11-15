@@ -104,4 +104,14 @@ class LogicTest {
         val on = (20..24).filter { app.thetahatch.tvhome.ui.eventsOn(java.time.LocalDate.of(2026, 11, it), listOf(e)).isNotEmpty() }
         assertEquals(listOf(21, 22, 23), on)
     }
+
+    @Test fun backSevenTimes() {
+        val b = app.thetahatch.tvhome.rescue.BackCounter()
+        val t = 1_000_000L
+        assertFalse((0 until 6).any { b.hit(t + it * 300) })
+        assertTrue(b.hit(t + 6 * 300))
+        // ゆっくり押した分は数えない
+        val c = app.thetahatch.tvhome.rescue.BackCounter()
+        assertFalse((0 until 7).any { c.hit(t + it * 1000L) })
+    }
 }

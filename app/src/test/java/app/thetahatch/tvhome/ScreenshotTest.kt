@@ -14,6 +14,8 @@ import app.thetahatch.tvhome.data.AppItem
 import app.thetahatch.tvhome.data.Day
 import app.thetahatch.tvhome.data.NetInfo
 import app.thetahatch.tvhome.data.NetStatus
+import app.thetahatch.tvhome.media.NowPlaying
+import app.thetahatch.tvhome.media.Playing
 import app.thetahatch.tvhome.ui.CrossBarLayout
 import app.thetahatch.tvhome.ui.KidsLayout
 import app.thetahatch.tvhome.data.Entry
@@ -92,12 +94,18 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage("../docs/screenshots/$name.png")
     }
 
+    @org.junit.Before fun clearPlaying() = NowPlaying.setForTest(null)
+
     @Test fun homeDark() = shot("dark", "home-dark")
     @Test fun homePop() = shot("pop", "home-pop")
     @Test fun kids() = shot("dark", "kids-usagi", "kids")
     @Test fun kidsNight() = shot("dark", "kids-hoshi", "kids", "hoshi")
     @Test fun bar() = shot("dark", "bar-dark", "bar")
     @Test fun barLight() = shot("braun", "bar-braun", "bar")
+    @Test fun barPlaying() {
+        NowPlaying.setForTest(Playing("そらいろの ふうせん", "こどもの うた ・ そらいろ", null, "app.thetahatch.music", "Theta Music", true, 70_000, 200_000, System.currentTimeMillis()))
+        shot("dark", "bar-playing", "bar")
+    }
 
     @Test fun pin() {
         compose.setContent {

@@ -152,11 +152,11 @@ fun appMenu(app: TvHomeApp, a: AppItem): TileMenu {
     val fav = s.favorites
     val actions = mutableListOf<Pair<String, () -> Unit>>()
     if (a.pkg in fav) {
-        actions += "★ をはずす" to { s.favorites = fav - a.pkg }
+        actions += "ホームから はずす" to { s.favorites = fav - a.pkg }
         val i = fav.indexOf(a.pkg)
-        if (i > 0) actions += "← まえへ" to { s.favorites = fav.toMutableList().apply { removeAt(i); add(i - 1, a.pkg) } }
-        if (i < fav.size - 1) actions += "→ うしろへ" to { s.favorites = fav.toMutableList().apply { removeAt(i); add(i + 1, a.pkg) } }
-    } else actions += "★ すきなアプリにする" to { s.favorites = fav + a.pkg }
+        if (i > 0) actions += "まえへ（↑・←）" to { s.favorites = fav.toMutableList().apply { removeAt(i); add(i - 1, a.pkg) } }
+        if (i < fav.size - 1) actions += "うしろへ（↓・→）" to { s.favorites = fav.toMutableList().apply { removeAt(i); add(i + 1, a.pkg) } }
+    } else actions += "★ ホームに だす" to { s.favorites = fav + a.pkg }
     actions += "かくす" to { s.hidden = s.hidden + a.pkg }
     return TileMenu(a.label, actions.map { (t, f) -> t to { f(); app.settingsChanged() } })
 }

@@ -1,5 +1,8 @@
 package app.thetahatch.adb
 
+import app.thetahatch.tvhome.rescue.Rescue
+import app.thetahatch.tvhome.rescue.RescueActivity
+import app.thetahatch.tvhome.media.NowPlaying
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -61,6 +64,11 @@ class CommandReceiver : BroadcastReceiver() {
                     JSONObject().put("key", key).put("set", v.isNotEmpty())
                 }
                 "OPEN" -> {
+                    when (intent.getStringExtra("screen")) {
+                        "rescue" -> { app.startActivity(Intent(app, RescueActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); return@runCatching JSONObject().put("opened", "rescue") }
+                        "safe" -> { app.startActivity(Intent(app, MainActivity::class.java).putExtra(Rescue.EXTRA_SAFE, true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)); return@runCatching JSONObject().put("opened", "safe") }
+                        "stock" -> { Rescue.openStockHome(app); return@runCatching JSONObject().put("opened", "stock") }
+                    }
                     app.startActivity(Intent(app, MainActivity::class.java).putExtra(MainActivity.EXTRA_SCREEN, intent.getStringExtra("screen") ?: "home")
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))
                     JSONObject().put("opened", intent.getStringExtra("screen") ?: "home")

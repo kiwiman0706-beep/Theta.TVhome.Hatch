@@ -17,7 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import android.view.KeyEvent
 import app.thetahatch.tvhome.hub.UpdateHub
+import app.thetahatch.tvhome.rescue.BackCounter
+import app.thetahatch.tvhome.rescue.Rescue
+import app.thetahatch.tvhome.rescue.RescueActivity
 import app.thetahatch.tvhome.skin.paletteFor
 import app.thetahatch.tvhome.ui.AllAppsScreen
 import app.thetahatch.tvhome.ui.CrossBarLayout
@@ -33,10 +37,24 @@ import app.thetahatch.tvhome.ui.UpdatesScreen
 class MainActivity : ComponentActivity() {
     private val screen = mutableStateOf("home")
     private val homeFocus = FocusRequester()
+    private var rescued = false
+    private val healthy = android.os.Handler(android.os.Looper.getMainLooper())
+    private val markHealthy = Runnable { Rescue.onHomeHealthy(this) }
+    private val backs = BackCounter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val app = application as TvHomeApp
+        // ① 落ちる・固まるのが続いていたら、ホームの代わりにレスキュー画面（別プロセス）
+        val safe = intent?.getBooleanExtra(Rescue.EXTRA_SAFE, false) == true
+        if (Rescue.onHomeStart(this) && !safe) {
+            rescued = true
+            openRescue()
+            finish()
+            return
+        }
+        if (safe) app.safeMode = true
+        watchBack()
         intent?.getStringExtra(EXTRA_SCREEN)?.let { screen.value = it }
         setContent {
             val tick by app.state.tick.collectAsState()
@@ -70,6 +88,9 @@ class MainActivity : ComponentActivity() {
                     }
                     menu?.let { m -> MenuOverlay(m) { menu = null } }
                     pinAsk?.let { (title, done) -> PinPad(title, { pin -> pinAsk = null; done(pin) }, { pinAsk = null }) }
+                    if (current == "rescue-pin") {
+                        PinPad("レスキュー：おうちの人の番号", { pin -> screen.value = "home"; if (app.store.checkPin(pin)) openRescue() else app.toast("番号がちがいます") }, { screen.value = "home" })
+                    }
                 }
                 // ホームでは「戻る」で何もしない（ホームアプリなので）。ほかの画面ではホームへ
                 BackHandler(enabled = true) {
@@ -83,6 +104,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * ② リモコンの「戻る」を 4 秒のうちに 7 回：どの画面からでもレスキュー。
+     * 画面の部品（Compose）より先に受けるため、ウィンドウの入口で数える。
+     */
+    private fun watchBack() {
+        val original = window.callback
+        window.callback = object : android.view.Window.Callback by original {
+            override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                if (event.action == KeyEvent.ACTION_UP && event.keyCode == KeyEvent.KEYCODE_BACK && backs.hit()) {
+                    val app = application as TvHomeApp
+                    // 子どもモードで番号があるときは、番号を聞いてから（落ちたときの自動のレスキューは聞かない）
+                    if (app.store.kidsMode && app.store.hasPin()) screen.value = "rescue-pin" else openRescue()
+                    return true
+                }
+                return original.dispatchKeyEvent(event)
+            }
+        }
+    }
+
+    fun openRescue() {
+        runCatching { startActivity(Intent(this, RescueActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            .onFailure { Rescue.openStockHome(this) }
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         // ホームボタン：どの画面からでもホームの先頭へ
@@ -92,12 +137,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (rescued) return
         (application as TvHomeApp).state.onShown()
+        // ③ 8 秒ふつうに動いたら「無事」
+        healthy.postDelayed(markHealthy, 8000)
     }
 
     override fun onPause() {
         super.onPause()
         UpdateHub.foreground = false
+    }
+
+    override fun onStop() {
+        if (!rescued) { healthy.removeCallbacks(markHealthy); Rescue.onHomeHealthy(this) }
+        super.onStop()
     }
 
     companion object {
