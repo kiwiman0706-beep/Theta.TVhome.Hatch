@@ -27,6 +27,7 @@ class TvHomeApp : Application(), Configuration.Provider {
         state = HomeState(this)
         Catalog.load(this)
         UpdateWorker.schedule(this)
+        app.thetahatch.tvhome.data.NetStatus.start(this)
     }
 
     /** 設定が外（ADB・ほかのアプリ）から変わった。 */

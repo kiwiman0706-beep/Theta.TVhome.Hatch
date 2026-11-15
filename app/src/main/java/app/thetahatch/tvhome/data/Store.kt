@@ -16,9 +16,9 @@ class Store(context: Context) {
         get() = prefs.getString("ui.skin", "dark") ?: "dark"
         set(v) = prefs.edit().putString("ui.skin", v).apply()
 
-    /** ホームの形：kids（キッズホーム風）・bar（クロスバー）・simple（棚）。 */
+    /** ホームの形：bar（クロスバー＋計器盤、既定）・kids（キッズホーム風）・simple（棚）。 */
     var layout: String
-        get() = prefs.getString("ui.layout", "kids") ?: "kids"
+        get() = prefs.getString("ui.layout", "bar") ?: "bar"
         set(v) = prefs.edit().putString("ui.layout", v).apply()
 
     /** キッズ風のときの色とマスコット（usagi・neko・kuma・dino・unicorn・umi・hoshi）。 */

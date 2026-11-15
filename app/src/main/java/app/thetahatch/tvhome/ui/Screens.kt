@@ -59,7 +59,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-val LAYOUTS = listOf("kids", "bar", "simple")
+val LAYOUTS = listOf("bar", "kids", "simple")
 val SKINS = listOf("dark", "system", "light", "pop", "alert", "scifi", "term", "braun", "soft", "window", "lcd")
 
 @Composable
@@ -93,7 +93,7 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
             val names = mapOf("kids" to "キッズ", "bar" to "クロスバー", "simple" to "たな")
             RowButton("ホームの形", names[s.layout] ?: s.layout, focusRequester = first, onClick = {
                 s.layout = LAYOUTS[(LAYOUTS.indexOf(s.layout) + 1) % LAYOUTS.size]; changed()
-            }, note = "キッズ（キッズホーム風）・クロスバー（横にまとまり、縦に中身）・たな（横の棚）")
+            }, note = "クロスバー（右に時計・てんき・よてい）・キッズ（キッズホーム風）・たな（横の棚）")
         }
         item {
             RowButton("キッズの いろ", kidThemeById(s.kidTheme).let { it.mascot + " " + it.name }, onClick = {

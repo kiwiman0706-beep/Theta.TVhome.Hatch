@@ -12,6 +12,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import app.thetahatch.tvhome.data.AppItem
 import app.thetahatch.tvhome.data.Day
+import app.thetahatch.tvhome.data.NetInfo
+import app.thetahatch.tvhome.data.NetStatus
 import app.thetahatch.tvhome.ui.CrossBarLayout
 import app.thetahatch.tvhome.ui.KidsLayout
 import app.thetahatch.tvhome.data.Entry
@@ -50,9 +52,11 @@ class ScreenshotTest {
             .map { (l, p) -> AppItem(p, l, android.content.Intent().setClassName(p, "$p.Main"), false) }
         app.state.apps.value = fake
         app.store.favorites = fake.take(4).map { it.pkg }
+        NetStatus.setForTest(NetInfo("wifi", true, true, 3, 433))
         val t = System.currentTimeMillis()
         app.state.forecast.value = Forecast(14.0, 1, true, listOf(Day(t, 1, 18.0, 9.0, 10), Day(t, 61, 15.0, 10.0, 70), Day(t, 0, 19.0, 8.0, 0)), t)
         app.state.events.value = listOf(
+            Event("おふろ そうじ", now.minusMinutes(10), now.plusMinutes(20), false),
             Event("ピアノ", now.plusHours(2), now.plusHours(3), false),
             Event("遠足", now.plusDays(1).withHour(0), null, true),
             Event("歯医者", now.plusDays(1).withHour(16).withMinute(30), null, false),

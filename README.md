@@ -5,15 +5,17 @@ Theta Hatch シリーズの 1 つ（シリーズの決まりは [Theta.Hatch.Ser
 
 対象：SHARP AQUOS 4T-C65DQ2（2021 年、Android TV）。ほかの Android TV でも動く作り。
 
-| キッズ | クロスバー |
-| --- | --- |
-| ![キッズ](docs/screenshots/kids-usagi.png) | ![クロスバー](docs/screenshots/bar-dark.png) |
+![クロスバー](docs/screenshots/bar-dark.png)
 
-## できること（0.2.0）
+| キッズ | クロスバー（braun） |
+| --- | --- |
+| ![キッズ](docs/screenshots/kids-usagi.png) | ![クロスバー](docs/screenshots/bar-braun.png) |
+
+## できること（0.3.0）
 
 | | |
 | --- | --- |
-| ホームの形 | キッズ（キッズホーム風、いろ 7 種）・クロスバー（横にまとまり、縦に中身）・たな（横の棚）から選ぶ |
+| ホームの形 | クロスバー＋計器盤（はじめはこれ。右に時計・てんき・よてい、下にネット・Tailscale・更新）・キッズ（キッズホーム風、いろ 7 種）・たな |
 | 時計・天気・予定 | 天気は Open-Meteo（キー不要）。予定は Google カレンダーの「iCal 形式の非公開 URL」（秘密として暗号化して保存） |
 | テレビの入口 | テレビ・地デジ・BS・録画・HDMI。HDMI は Android TV の決まった方法で切り替え。地デジ・BS・録画は機種ごとに違うので ADB で設定（[docs/ADB.md](docs/ADB.md)） |
 | アプリ | すきなアプリ（★）を大きく、ほかは下に。長押しかメニューボタンで ★・並べ替え・かくす |
