@@ -21,8 +21,8 @@ android {
         applicationId = "app.thetahatch.tvhome"
         minSdk = 28
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.5.0"
+        versionCode = 6
+        versionName = "0.5.1"
     }
 
     // シリーズ共通の鍵（Theta.Hatch.Series の secrets/README.md）。

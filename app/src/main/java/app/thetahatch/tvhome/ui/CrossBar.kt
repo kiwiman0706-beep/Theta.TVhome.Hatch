@@ -89,6 +89,8 @@ private val ROW = 39.dp
 private val ROW_ON = 62.dp
 private val STRIP_H = 107.dp       // 下の 2 週間の帯
 private val GRID_TOP = 180.dp      // 4 週に広げたときの上
+private const val MIN_WEEKS = -4
+private const val MAX_WEEKS = 12
 
 private val DOW = listOf("月", "火", "水", "木", "金", "土", "日")
 
@@ -134,6 +136,8 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
     val monday = today.minusDays((today.dayOfWeek.value - 1).toLong())
     val todayIdx = (today.dayOfWeek.value - 1)
     var sel by remember { mutableIntStateOf(todayIdx) }
+    // 表を何週ずらしているか（↓ で 1 週ずつ先へ、チャンネル＋－ で 4 週。4 週前〜12 週先）
+    var weeks by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) { while (true) { now = ZonedDateTime.now(); delay(1000L * (60 - now.second).coerceAtLeast(1)) } }
     LaunchedEffect(Unit) { delay(150); runCatching { firstFocus.requestFocus() } }
@@ -151,7 +155,7 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
     fun move(dc: Int) {
         val n = cats.size
         cat = ((cat + dc) % n + n) % n
-        inGrid = false; top = false
+        inGrid = false; top = false; weeks = 0; sel = todayIdx
     }
 
     Box(
@@ -168,11 +172,13 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
                     inGrid && current.key == "cal" -> {
                         if (e.type != KeyEventType.KeyDown) return@onKeyEvent back
                         when (e.key) {
-                            Key.DirectionLeft -> sel = (sel - 1).coerceAtLeast(0)
-                            Key.DirectionRight -> sel = (sel + 1).coerceAtMost(27)
-                            Key.DirectionUp -> if (sel < 7) inGrid = false else sel -= 7
-                            Key.DirectionDown -> sel = (sel + 7).coerceAtMost(27)
-                            Key.Back, Key.Escape -> inGrid = false
+                            Key.DirectionLeft -> if (sel > 0) sel-- else if (weeks > MIN_WEEKS) { weeks--; sel = 6 }
+                            Key.DirectionRight -> if (sel < 27) sel++ else if (weeks < MAX_WEEKS) { weeks++; sel = 21 }
+                            Key.DirectionUp -> when { sel >= 7 -> sel -= 7; weeks > 0 -> weeks--; else -> inGrid = false }
+                            Key.DirectionDown -> if (sel < 21) sel += 7 else if (weeks < MAX_WEEKS) weeks++
+                            Key.ChannelUp, Key.PageDown -> weeks = (weeks + 4).coerceAtMost(MAX_WEEKS)
+                            Key.ChannelDown, Key.PageUp -> weeks = (weeks - 4).coerceAtLeast(MIN_WEEKS)
+                            Key.Back, Key.Escape -> { inGrid = false; weeks = 0; sel = todayIdx }
                             else -> return@onKeyEvent false
                         }
                         true
@@ -273,20 +279,20 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
         }
 
         // ---- カレンダー：ふだんは下に 2 週間の帯、カレンダーを選ぶと 4 週の表
-        CalendarBand(monday, today, events, forecast, open, if (inGrid && current.key == "cal") sel else -1, menuAlpha) { i ->
+        CalendarBand(monday, weeks, today, events, forecast, open, if (inGrid && current.key == "cal") sel else -1, menuAlpha) { i ->
             cat = 0; inGrid = true; sel = i; lastKey = System.currentTimeMillis()
         }
         if (current.key == "cal") {
             Box(Modifier.offset(x = SIDE, y = 160.dp).alpha(menuAlpha * open)) {
                 if (inGrid) {
-                    val d = monday.plusDays(sel.toLong())
+                    val d = monday.plusWeeks(weeks.toLong()).plusDays(sel.toLong())
                     val evs = eventsOn(d, events)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         T("${d.monthValue}月${d.dayOfMonth}日（${DOW[d.dayOfWeek.value - 1]}）", size = 12.sp, color = p.accent, weight = FontWeight.Bold)
                         Spacer(Modifier.width(9.dp))
                         T(if (evs.isEmpty()) "よていは ないよ" else evs.joinToString("　・　") { (if (it.allDay) "いちにち" else it.start.format(DateTimeFormatter.ofPattern("H:mm"))) + "　" + it.title }, size = 11.sp)
                     }
-                } else T("↓ で日にちへ　戻る で帯にもどる", size = 10.sp, color = p.muted)
+                } else T("↓ で日にちへ（下の段で ↓ ／ チャンネル＋－ で先の週・月へ）　戻る で帯にもどる", size = 10.sp, color = p.muted)
             }
         }
 
@@ -442,7 +448,7 @@ private fun ItemRow(it: Item, sel: Boolean, i: Int, n: Int, col: Color, before: 
  * open の途中は、帯から表へ上に広がる。
  */
 @Composable
-private fun CalendarBand(monday: LocalDate, today: LocalDate, events: List<Event>, forecast: Forecast?, open: Float, sel: Int, menuAlpha: Float, onDay: (Int) -> Unit) {
+private fun CalendarBand(monday: LocalDate, weeks: Int, today: LocalDate, events: List<Event>, forecast: Forecast?, open: Float, sel: Int, menuAlpha: Float, onDay: (Int) -> Unit) {
     val p = LocalPalette.current
     val zone = remember { ZoneId.systemDefault() }
     val wx = remember(forecast) { forecast?.days?.associateBy { Instant.ofEpochMilli(it.date).atZone(zone).toLocalDate() }.orEmpty() }
@@ -454,6 +460,14 @@ private fun CalendarBand(monday: LocalDate, today: LocalDate, events: List<Event
         val bandTop = h - 27.dp - STRIP_H
         val y = bandTop + (GRID_TOP - bandTop) * open
         if (!full) T("NEXT 14 DAYS", Modifier.offset(x = SIDE, y = bandTop - 15.dp).alpha(1f - open), size = 8.sp, color = p.faint, font = Mono)
+        else {
+            val a = monday.plusWeeks(weeks.toLong())
+            val b = a.plusDays(27)
+            val label = "${a.year}年 ${a.monthValue}月" + (if (b.monthValue != a.monthValue) " 〜 ${b.monthValue}月" else "") + if (weeks != 0) "（${if (weeks > 0) "+" else ""}$weeks しゅう）" else ""
+            Box(Modifier.fillMaxWidth().offset(y = GRID_TOP - 20.dp).padding(horizontal = SIDE), contentAlignment = Alignment.CenterEnd) {
+                T(label, size = 12.sp, color = p.muted, font = headFont())
+            }
+        }
         Column(
             Modifier.offset(y = y).padding(horizontal = SIDE).fillMaxWidth().height(h - 27.dp - y)
                 .let { m -> if (full) m.clip(RoundedCornerShape(9.dp)).background(p.panel).border(0.5.dp, p.line, RoundedCornerShape(9.dp)) else m },
@@ -464,7 +478,7 @@ private fun CalendarBand(monday: LocalDate, today: LocalDate, events: List<Event
                 Row(Modifier.fillMaxWidth().weight(1f)) {
                     for (c in 0 until cols) {
                         val i = r * cols + c
-                        val d = monday.plusDays(i.toLong())
+                        val d = (if (full) monday.plusWeeks(weeks.toLong()) else monday).plusDays(i.toLong())
                         DayCell(d, today, eventsOn(d, events), wx[d], full, i == sel, sun, sat, Modifier.weight(1f).fillMaxHeight()
                             .clickable(remember { MutableInteractionSource() }, null) { onDay(i) })
                     }

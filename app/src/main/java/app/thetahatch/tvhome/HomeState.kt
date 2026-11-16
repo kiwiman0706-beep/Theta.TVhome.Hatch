@@ -85,10 +85,10 @@ class HomeState(private val app: TvHomeApp) {
                 withContext(Dispatchers.IO) {
                     val urls = store.secret("calendar.ics").split('\n', ' ').map { it.trim() }.filter { it.startsWith("http") }
                     val zone = ZoneId.systemDefault()
-                    // 今週の月曜から 5 週（帯は 2 週、カレンダーを開くと 4 週。キッズ・たな はこれからの分）
+                    // 今週の月曜の 4 週前から 20 週（帯は 2 週、カレンダーは 4 週を 4 週前〜12 週先まで動かせる）
                     val today = ZonedDateTime.now(zone).toLocalDate()
-                    val from = today.minusDays((today.dayOfWeek.value - 1).toLong()).atStartOfDay(zone)
-                    urls.flatMap { u -> Ics.events(Net.get(u.replaceFirst("webcal://", "https://")), from, 35, zone) }.sortedBy { it.start }
+                    val from = today.minusDays((today.dayOfWeek.value - 1).toLong()).minusWeeks(4).atStartOfDay(zone)
+                    urls.flatMap { u -> Ics.events(Net.get(u.replaceFirst("webcal://", "https://")), from, 140, zone) }.sortedBy { it.start }
                 }
             }.onSuccess { events.value = it; calendarError.value = null }
                 .onFailure { calendarAt = 0; calendarError.value = it.message ?: "読めません" }
