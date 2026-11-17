@@ -34,6 +34,10 @@ Theta Hatch シリーズの 1 つ（シリーズの決まりは [Theta.Hatch.Ser
 2. その後は自動で更新（Releases の最新版。リモコンで「こうしん」からも）
 3. 様子を見て、既定のホームに切り替える（同じく docs/ADB.md。元に戻す手順つき）
 
+## ほかのテレビ
+
+職場などの別の Android TV を調べる・アプリを入れる：[docs/PROMPT_LOCAL_DEVICE.md](docs/PROMPT_LOCAL_DEVICE.md)（読むだけの調査は `tools/tv_survey.py`、結果は [docs/device/](docs/device/README.md)）
+
 ## これから
 
 [docs/ROADMAP.md](docs/ROADMAP.md)（NAS・USB HDD・Hatch アプリとの連携・家族のビデオ通話・SwitchBot・Tapo カメラ）

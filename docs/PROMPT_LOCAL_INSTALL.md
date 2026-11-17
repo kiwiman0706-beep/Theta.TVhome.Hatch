@@ -18,7 +18,7 @@ PC（Windows か Mac）のローカルの Claude Code に、下の「依頼文�
 
 進め方
 1. adb connect <IP>:5555 でつなぐ。テレビに許可の画面が出たら私が押すので、待って確かめて
-2. 機種の情報を記録（docs/ADB.md §1-4）。いまの既定のホーム（純正のホーム）の component を必ず控える
+2. 機種の情報を記録（docs/ADB.md §1-4）。いまの既定のホーム（純正のホーム）の component を必ず控える。読むだけの調査 python tools/tv_survey.py --serial <IP>:5555 --label 自宅 も動かす（結果は docs/device/4T-C65DQ2/）
 3. GitHub の Releases の最新の ThetaTVhomeHatch-<版>.apk を取得して、SHA256SUMS と照合。apksigner があれば署名の SHA-256 が f47740d8549bc1c37feb00b18780d80b52758b60252ba0d2217d83ab3f012a23 であることも確かめる
 4. adb install -r で入れる。続けて REQUEST_INSTALL_PACKAGES の許可（§2）と、再生中の表示の許可（§5.5）
 5. dumpsys の状態と probe（§3・§4）を取り、地デジ・BS・録画のリモコンのボタンを私が押すので、そのとき開いた画面を記録（§4）。見つかった Intent は SET entry.* で入れて LAUNCH で試す
