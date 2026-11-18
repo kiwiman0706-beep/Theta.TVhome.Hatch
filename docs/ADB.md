@@ -108,7 +108,7 @@ adb shell am broadcast -a app.thetahatch.adb.LAUNCH -n $W --es key terrestrial
 adb shell am broadcast -a app.thetahatch.adb.SET -n $W --es key weather.place --es value "35.44,139.64,横浜"
 ```
 
-カレンダー（Google カレンダーの 設定 → カレンダーの設定 →「iCal 形式の非公開 URL」。複数は改行で並べる）。**URL は秘密**なので、ファイルで渡して読んだら消す：
+カレンダー（家族のアカウントの Google カレンダーの「iCal 形式の非公開アドレス」。複数は改行で並べる。祝日の入れ方なども docs/GOOGLE_ACCOUNT.md ②）。**URL は秘密**なので、ファイルで渡して読んだら消す：
 
 ```bash
 adb push calendar.txt /sdcard/Android/data/app.thetahatch.tvhome/files/calendar.txt

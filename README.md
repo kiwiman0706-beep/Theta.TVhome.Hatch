@@ -34,6 +34,10 @@ Theta Hatch シリーズの 1 つ（シリーズの決まりは [Theta.Hatch.Ser
 2. その後は自動で更新（Releases の最新版。リモコンで「こうしん」からも）
 3. 様子を見て、既定のホームに切り替える（同じく docs/ADB.md。元に戻す手順つき）
 
+## Google アカウント
+
+自宅のテレビは家族の共用アカウントで使う。テレビへのログイン・予定（iCal）の入れ方・これから使う Google の許可の下準備：[docs/GOOGLE_ACCOUNT.md](docs/GOOGLE_ACCOUNT.md)
+
 ## ほかのテレビ
 
 職場などの別の Android TV を調べる・アプリを入れる：[docs/PROMPT_LOCAL_DEVICE.md](docs/PROMPT_LOCAL_DEVICE.md)（読むだけの調査は `tools/tv_survey.py`、結果は [docs/device/](docs/device/README.md)）
