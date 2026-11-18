@@ -8,7 +8,8 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-data class Event(val title: String, val start: ZonedDateTime, val end: ZonedDateTime?, val allDay: Boolean, val location: String = "")
+/** 予定 1 件。color は Google カレンダーの色（"#RRGGBB"、無ければ空）。 */
+data class Event(val title: String, val start: ZonedDateTime, val end: ZonedDateTime?, val allDay: Boolean, val location: String = "", val color: String = "")
 
 /**
  * iCalendar（.ics）を読む。Google カレンダーの「iCal 形式の非公開 URL」をそのまま使う想定。

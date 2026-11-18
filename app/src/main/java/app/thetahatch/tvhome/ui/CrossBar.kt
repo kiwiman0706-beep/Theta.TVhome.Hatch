@@ -516,7 +516,7 @@ private fun DayCell(d: LocalDate, today: LocalDate, evs: List<Event>, w: app.the
         }
         evs.take(if (full) 3 else 2).forEach { e ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(1.5.dp).height(9.dp).background(if (e.allDay) p.widget else p.accent))
+                Box(Modifier.width(1.5.dp).height(9.dp).background(eventColor(e) ?: if (e.allDay) p.widget else p.accent))
                 Spacer(Modifier.width(4.dp))
                 if (!e.allDay) { T(e.start.format(DateTimeFormatter.ofPattern("H:mm")), size = 6.5.sp, color = p.faint, font = Mono); Spacer(Modifier.width(3.dp)) }
                 T(e.title, size = if (full) 8.5.sp else 7.5.sp, color = if (full) p.fg else p.muted)
@@ -525,6 +525,9 @@ private fun DayCell(d: LocalDate, today: LocalDate, evs: List<Event>, w: app.the
         if (evs.size > (if (full) 3 else 2)) T("+${evs.size - if (full) 3 else 2}", size = 7.sp, color = p.faint)
     }
 }
+
+/** Google カレンダーの色（"#RRGGBB"）。 */
+private fun eventColor(e: Event): Color? = runCatching { if (e.color.length == 7) Color(android.graphics.Color.parseColor(e.color)) else null }.getOrNull()
 
 @Suppress("unused")
 private fun unusedDp(d: Dp) = abs(d.value)

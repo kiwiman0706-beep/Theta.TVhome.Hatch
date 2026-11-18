@@ -11,6 +11,7 @@ import app.thetahatch.tvhome.data.Entries
 import app.thetahatch.tvhome.data.Entry
 import app.thetahatch.tvhome.data.Event
 import app.thetahatch.tvhome.data.Forecast
+import app.thetahatch.tvhome.data.GCal
 import app.thetahatch.tvhome.data.Ics
 import app.thetahatch.tvhome.data.Net
 import app.thetahatch.tvhome.data.Place
@@ -34,6 +35,9 @@ class HomeState(private val app: TvHomeApp) {
     val forecast = MutableStateFlow<Forecast?>(null)
     val events = MutableStateFlow<List<Event>>(emptyList())
     val calendarError = MutableStateFlow<String?>(null)
+    /** Google の許可の画面（MainActivity が出す）。 */
+    val consent = MutableStateFlow<android.app.PendingIntent?>(null)
+    val gcal by lazy { GCal(app) }
     /** 設定が変わるたびに増える（画面の読み直し用）。 */
     private val _tick = MutableStateFlow(0)
     val tick: StateFlow<Int> = _tick
@@ -75,24 +79,49 @@ class HomeState(private val app: TvHomeApp) {
         }
     }
 
-    fun refreshCalendar(force: Boolean = false) {
+    /**
+     * 予定：Google カレンダーにつないでいれば API（テレビの Google アカウント）、
+     * つないでいなくて iCal の非公開アドレスが入っていればそれ（予備。docs/GOOGLE_ACCOUNT.md）。
+     * 今週の月曜の 4 週前から 20 週（帯は 2 週、カレンダーは 4 週を 4 週前〜12 週先まで動かせる）。
+     */
+    fun refreshCalendar(force: Boolean = false, interactive: Boolean = false) {
         if (app.safeMode) return
-        if (!store.hasSecret("calendar.ics")) { events.value = emptyList(); calendarError.value = null; return }
+        val google = store.googleCalendar
+        if (!google && !store.hasSecret("calendar.ics")) { events.value = emptyList(); calendarError.value = null; return }
         if (!force && System.currentTimeMillis() - calendarAt < 30 * 60_000L) return
         calendarAt = System.currentTimeMillis()
         app.scope.launch {
+            val zone = ZoneId.systemDefault()
+            val today = ZonedDateTime.now(zone).toLocalDate()
+            val from = today.minusDays((today.dayOfWeek.value - 1).toLong()).minusWeeks(4).atStartOfDay(zone)
             runCatching {
                 withContext(Dispatchers.IO) {
-                    val urls = store.secret("calendar.ics").split('\n', ' ').map { it.trim() }.filter { it.startsWith("http") }
-                    val zone = ZoneId.systemDefault()
-                    // 今週の月曜の 4 週前から 20 週（帯は 2 週、カレンダーは 4 週を 4 週前〜12 週先まで動かせる）
-                    val today = ZonedDateTime.now(zone).toLocalDate()
-                    val from = today.minusDays((today.dayOfWeek.value - 1).toLong()).minusWeeks(4).atStartOfDay(zone)
-                    urls.flatMap { u -> Ics.events(Net.get(u.replaceFirst("webcal://", "https://")), from, 140, zone) }.sortedBy { it.start }
+                    if (google) gcal.events(from, 140, zone)
+                    else store.secret("calendar.ics").split('\n', ' ').map { it.trim() }.filter { it.startsWith("http") || it.startsWith("webcal") }
+                        .flatMap { u -> Ics.events(Net.get(u.replaceFirst("webcal://", "https://")), from, 140, zone) }.sortedBy { it.start }
                 }
             }.onSuccess { events.value = it; calendarError.value = null }
-                .onFailure { calendarAt = 0; calendarError.value = it.message ?: "読めません" }
+                .onFailure { e ->
+                    calendarAt = 0
+                    if (e is GCal.NeedConsent) {
+                        // 許可の画面は、せっていで「つなぐ」を押したときだけ自分から出す（ふだんは知らせるだけ）
+                        if (interactive) consent.value = e.intent
+                        calendarError.value = "Google の許可が要ります（せってい → Google カレンダー）"
+                    } else calendarError.value = e.message ?: "読めません"
+                }
         }
+    }
+
+    /** せってい：Google カレンダーにつなぐ（許可の画面を出す）。 */
+    fun connectGoogle() {
+        store.googleCalendar = true
+        refreshCalendar(force = true, interactive = true)
+    }
+
+    /** 許可の画面から戻った。 */
+    fun onConsent(data: Intent?) {
+        consent.value = null
+        if (gcal.acceptResult(data)) refreshCalendar(force = true) else calendarError.value = "許可されませんでした"
     }
 
     fun launch(intent: Intent?): Boolean {

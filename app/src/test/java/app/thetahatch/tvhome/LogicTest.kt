@@ -114,4 +114,15 @@ class LogicTest {
         val c = app.thetahatch.tvhome.rescue.BackCounter()
         assertFalse((0 until 7).any { c.hit(t + it * 1000L) })
     }
+
+    @Test fun googleCalendarEvent() {
+        val timed = org.json.JSONObject("""{"summary":"歯医者","location":"駅前","start":{"dateTime":"2026-11-16T07:30:00Z"},"end":{"dateTime":"2026-11-16T08:00:00Z"}}""")
+        val e = app.thetahatch.tvhome.data.GCal.parse(timed, tokyo, "#7986cb")!!
+        assertEquals(16, e.start.hour)
+        assertFalse(e.allDay)
+        assertEquals("#7986cb", e.color)
+        val day = org.json.JSONObject("""{"summary":"遠足","start":{"date":"2026-11-18"},"end":{"date":"2026-11-19"}}""")
+        assertTrue(app.thetahatch.tvhome.data.GCal.parse(day, tokyo)!!.allDay)
+        assertEquals(null, app.thetahatch.tvhome.data.GCal.parse(org.json.JSONObject("""{"status":"cancelled","start":{"date":"2026-11-18"}}"""), tokyo))
+    }
 }

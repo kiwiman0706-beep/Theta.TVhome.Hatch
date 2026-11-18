@@ -108,7 +108,7 @@ adb shell am broadcast -a app.thetahatch.adb.LAUNCH -n $W --es key terrestrial
 adb shell am broadcast -a app.thetahatch.adb.SET -n $W --es key weather.place --es value "35.44,139.64,横浜"
 ```
 
-カレンダー（家族のアカウントの Google カレンダーの「iCal 形式の非公開アドレス」。複数は改行で並べる。祝日の入れ方なども docs/GOOGLE_ACCOUNT.md ②）。**URL は秘密**なので、ファイルで渡して読んだら消す：
+カレンダーは、ふつうは TVhome のせってい →「Google カレンダー」で家族のアカウントを許可するだけ（docs/GOOGLE_ACCOUNT.md）。下の iCal は予備：**URL は秘密**なので、ファイルで渡して読んだら消す：
 
 ```bash
 adb push calendar.txt /sdcard/Android/data/app.thetahatch.tvhome/files/calendar.txt

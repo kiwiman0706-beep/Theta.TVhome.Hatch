@@ -143,9 +143,11 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
 
         item { SectionTitle("カレンダー") }
         item {
-            RowButton("予定（iCal の非公開 URL）", if (s.hasSecret("calendar.ics")) "設定済み" else "未設定", onClick = { app.state.refreshCalendar(force = true) },
-                note = "URL は秘密なので ADB で入れます（README「カレンダー」）。押すと読み直します")
+            val err by app.state.calendarError.collectAsState()
+            RowButton("Google カレンダー", if (s.googleCalendar) "つないでいる" else "つないでいない", onClick = { app.state.connectGoogle() },
+                note = (err?.let { "$it ・ " } ?: "") + "押すと、テレビの Google アカウント（家族の共用アカウント）で許可して読み直します。出すのは Google カレンダーで「表示」にしているカレンダー")
         }
+        if (s.googleCalendar) item { RowButton("Google カレンダーを はずす", null, onClick = { s.googleCalendar = false; changed() }) }
 
         item { SectionTitle("テレビの入口") }
         items(entries, key = { it.key }) { e ->

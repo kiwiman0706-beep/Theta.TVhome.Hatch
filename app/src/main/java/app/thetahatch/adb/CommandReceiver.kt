@@ -111,6 +111,7 @@ class CommandReceiver : BroadcastReceiver() {
             key == "ui.skin" -> s.skin
             key == "ui.layout" -> s.layout
             key == "kids.theme" -> s.kidTheme
+            key == "calendar.google" -> s.googleCalendar
             key == "weather.place" -> s.weatherPlace
             key == "kids.mode" -> s.kidsMode
             key == "apps.favorites" -> s.favorites.joinToString(",")
@@ -129,6 +130,7 @@ class CommandReceiver : BroadcastReceiver() {
             key == "ui.skin" -> s.skin = value
             key == "ui.layout" -> { if (value !in listOf("kids", "bar", "simple")) error("kids・bar・simple のどれか"); s.layout = value }
             key == "kids.theme" -> s.kidTheme = value
+            key == "calendar.google" -> s.googleCalendar = value == "true" || value == "1"
             key == "weather.place" -> { if (value.isNotBlank() && Place.decode(value) == null) error("\"緯度,経度,名前\" の形で"); s.weatherPlace = value }
             key == "kids.mode" -> s.kidsMode = value == "true" || value == "1"
             key == "kids.pin" -> s.setPin(value)

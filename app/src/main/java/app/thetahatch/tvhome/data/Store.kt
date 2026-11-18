@@ -26,6 +26,11 @@ class Store(context: Context) {
         get() = prefs.getString("kids.theme", "usagi") ?: "usagi"
         set(v) = prefs.edit().putString("kids.theme", v).apply()
 
+    /** 予定を Google カレンダーの API で読む（せってい → Google カレンダーにつなぐ）。 */
+    var googleCalendar: Boolean
+        get() = prefs.getBoolean("calendar.google", false)
+        set(v) = prefs.edit().putBoolean("calendar.google", v).apply()
+
     var autoUpdate: Boolean
         get() = prefs.getBoolean("update.auto", true)
         set(v) = prefs.edit().putBoolean("update.auto", v).apply()

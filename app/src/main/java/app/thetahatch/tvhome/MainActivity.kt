@@ -64,6 +64,17 @@ class MainActivity : ComponentActivity() {
             var pinAsk by remember { mutableStateOf<Pair<String, (String) -> Unit>?>(null) }
             var unlockedAt by remember { mutableStateOf(0L) }
             val current by screen
+            // Google の許可の画面（せってい →「Google カレンダーにつなぐ」）
+            val consentPi by app.state.consent.collectAsState()
+            val consentLauncher = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()) { r ->
+                app.state.onConsent(r.data)
+            }
+            androidx.compose.runtime.LaunchedEffect(consentPi) {
+                consentPi?.let { pi ->
+                    runCatching { consentLauncher.launch(androidx.activity.result.IntentSenderRequest.Builder(pi.intentSender).build()) }
+                        .onFailure { app.state.consent.value = null; app.toast("許可の画面を出せません") }
+                }
+            }
 
             /** おうちの人の番号で守る（番号が無い・5 分以内に入れたなら、そのまま）。 */
             val guarded: (() -> Unit) -> Unit = { action ->
