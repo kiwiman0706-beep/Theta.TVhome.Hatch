@@ -54,6 +54,9 @@ adb shell am broadcast -a app.thetahatch.adb.SET_SECRET -n app.thetahatch.tvhome
 TVhome でこれらを入れるときに要る。いまは急がなくてよい。どれも **Google Cloud のシリーズのプロジェクト**（`spec/THETA_GOOGLE_SETUP.md` の「共通」。Meishi で作ったもの）で行う。
 画面は https://console.cloud.google.com/ 、上のプロジェクト選択がシリーズのプロジェクトになっていることを確かめる。
 
+- **Google Cloud にログインするのは、プロジェクトを作った自分のアカウント**（家族のアカウントでログインする必要はない）
+- 家族のアカウントは、1 で「テストユーザー」に足すだけ。テレビで許可するのが家族のアカウント（4）
+
 1. **テストユーザーに家族のアカウントを足す**（プロジェクトに 1 回。シリーズの全アプリに効く）
    Google Auth Platform →「対象」→「テストユーザー」→ 家族のアカウントのメールアドレスを追加
 2. **このアプリ用の Android の OAuth クライアント**（TVhome に 1 回）
