@@ -145,6 +145,7 @@
                 <action android:name="app.thetahatch.adb.OPEN" />
                 <action android:name="app.thetahatch.adb.LAUNCH" />
                 <action android:name="app.thetahatch.adb.PROBE" />
+                <action android:name="app.thetahatch.adb.STATUS" />
                 <action android:name="app.thetahatch.adb.CHECK_UPDATE" />
                 <action android:name="app.thetahatch.adb.UPDATE" />
             </intent-filter>

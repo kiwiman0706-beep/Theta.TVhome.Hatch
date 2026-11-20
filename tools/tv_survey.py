@@ -61,9 +61,10 @@ COMMANDS: list[tuple[str, str]] = [
 ]
 
 # TVhome が入っていれば、その窓口も読む
+# dumpsys は窓口が動いていないと答えない機種がある（R4-SH）ので、ブロードキャストで取る
 TVHOME = [
-    ("tvhome-status", f"dumpsys activity service {PKG}/app.thetahatch.adb.StatusService"),
-    ("tvhome-probe", f"dumpsys activity service {PKG}/app.thetahatch.adb.StatusService probe"),
+    ("tvhome-status", f"am broadcast -a app.thetahatch.adb.STATUS -n {PKG}/app.thetahatch.adb.CommandReceiver"),
+    ("tvhome-probe", f"am broadcast -a app.thetahatch.adb.PROBE -n {PKG}/app.thetahatch.adb.CommandReceiver"),
 ]
 
 PROPS = [
@@ -149,7 +150,8 @@ def main() -> None:
         for k in ("tvhome-status", "tvhome-probe"):
             body = results.get(k, "").strip()
             try:
-                summary["tvhome"][k.removeprefix("tvhome-")] = json.loads(body.splitlines()[-1])
+                m = re.search(r'data="(.*)"\s*$', body, re.S)  # am broadcast の「Broadcast completed: result=0, data="{…}"」
+                summary["tvhome"][k.removeprefix("tvhome-")] = json.loads(m.group(1) if m else body.splitlines()[-1])
             except Exception:
                 summary["tvhome"][k.removeprefix("tvhome-")] = body[:2000]
 

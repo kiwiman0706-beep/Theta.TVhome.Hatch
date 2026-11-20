@@ -60,6 +60,12 @@ adb shell appops set app.thetahatch.tvhome REQUEST_INSTALL_PACKAGES allow
 adb shell dumpsys activity service $S
 ```
 
+**dumpsys が「No services match」と答える機種がある**（窓口のサービスが動いていないと答えない。R4-SH で確認）。そのときはブロードキャストで同じ中身を取る：
+
+```bash
+adb shell am broadcast -a app.thetahatch.adb.STATUS -n $W
+```
+
 1 行の JSON：版・既定のホーム・ハブ（受け持ち・インストールの許可）・設定（秘密は有無だけ）・入口・Hatch アプリ・足りない権限・エラー。
 
 ## 4. テレビの入口を調べる（いちばん大事）
@@ -67,6 +73,8 @@ adb shell dumpsys activity service $S
 ```bash
 adb shell dumpsys activity service $S probe
 ```
+
+（答えなければ `adb shell am broadcast -a app.thetahatch.adb.PROBE -n $W`）
 
 - `inputs`：TvInputManager の入力（HDMI・チューナー）。`viewResolves` が true なら HDMI の切り替えはそのまま動くはず
 - `tvApp`：放送の画面を出すアプリ、`tvishPackages`：放送・録画の画面を持っていそうなアプリ、`candidates`：決まった Intent を受けるアプリ
@@ -131,6 +139,13 @@ adb shell cmd notification allow_listener app.thetahatch.tvhome/app.thetahatch.t
 ```
 
 ## 6. 既定のホームにする（様子を見てから）
+
+**純正のホームが高い優先度で HOME を受けている機種では、既定にしてもホームボタンで純正が開く**（R4-SH：`com.google.android.tvlauncher` の priority=2。docs/device/R4-SH.md）。そのときは純正を無効化しない（文鎮を避ける）。TVhome はアプリの一覧から開いて使う。確かめ方：
+
+```bash
+adb shell dumpsys package com.google.android.tvlauncher | grep -A3 "android.intent.category.HOME"
+```
+
 
 **その前に**：レスキューを試しておく（リモコンの「戻る」を すばやく 7 回 → レスキュー画面 →「いつもの（純正の）ホームを開く」）。ADB からは：
 

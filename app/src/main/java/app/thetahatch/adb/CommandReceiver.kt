@@ -29,6 +29,7 @@ import java.io.File
  * | OPEN | screen（home・settings・updates・apps） | 画面を開く |
  * | LAUNCH | key（入口）か uri（Intent の URI） | 入口を試しに開く |
  * | PROBE | — | テレビの入口を調べる（dumpsys … probe と同じ） |
+ * | STATUS | — | 状態（dumpsys と同じ。dumpsys が答えないとき） |
  * | CHECK_UPDATE | — | 新しい版を今すぐ確かめる（受け付けたら返す。結果は dumpsys） |
  * | UPDATE | packageName（省略で全部） | 更新を入れる |
  */
@@ -81,6 +82,8 @@ class CommandReceiver : BroadcastReceiver() {
                     JSONObject().put("launched", i.toUri(Intent.URI_INTENT_SCHEME))
                 }
                 "PROBE" -> Status.probe(app)
+                // dumpsys は StatusService が動いていないと答えない機種がある（R4-SH）。同じ中身をここでも返す
+                "STATUS" -> Status.status(app)
                 "CHECK_UPDATE" -> {
                     app.scope.launch { runCatching { UpdateHub.check(app) }.onFailure { Errors.add("check: ${it.message}") } }
                     JSONObject().put("accepted", true)

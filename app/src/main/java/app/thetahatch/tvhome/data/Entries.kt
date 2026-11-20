@@ -66,10 +66,9 @@ object Entries {
         for ((key, label, icon) in FIXED) {
             val set = parse(store.entryUri(key))
             val auto: Intent? = when (key) {
-                "tv" -> tuners(context).firstOrNull()?.let { tuner ->
-                    // 放送の入力に切り替える（受けるアプリがあれば）。無ければテレビのアプリを開く
-                    Intent(Intent.ACTION_VIEW, TvContract.buildChannelsUriForInput(tuner.id)).takeIf { resolves(context, it) }
-                } ?: tvApp?.let { context.packageManager.getLeanbackLaunchIntentForPackage(it.packageName) ?: context.packageManager.getLaunchIntentForPackage(it.packageName) }
+                // テレビのアプリをそのまま開く。チューナーの channel の VIEW は、機種によってはアナログ放送を開いて落ちる（R4-SH で確認）ので使わない。
+                // 機種ごとの正しい入口は ADB で entry.tv に入れる（docs/device/<型番>.md）
+                "tv" -> tvApp?.let { context.packageManager.getLeanbackLaunchIntentForPackage(it.packageName) ?: context.packageManager.getLaunchIntentForPackage(it.packageName) }
                 else -> null
             }
             val intent = set ?: auto
