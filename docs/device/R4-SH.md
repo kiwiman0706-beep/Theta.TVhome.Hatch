@@ -99,7 +99,7 @@
 
 | いつ | 何をしたか | 戻し方 |
 | --- | --- | --- |
-| 2026-11-20 | 開発者向けオプション →「USB デバッグ」をオン（利用者がテレビで） | 開発者向けオプションでオフ |
+| 2026-11-20 | 開発者向けオプション →「USB デバッグ」をオン（利用者がテレビで）。作業のあとも**オンのまま**にした（利用者が決めた） | 開発者向けオプションでオフ |
 | 2026-11-20 | `adb install -r ThetaTVhomeHatch-0.6.0.apk`（前は入っていない） | `adb uninstall app.thetahatch.tvhome` |
 | 2026-11-20 | `appops set app.thetahatch.tvhome REQUEST_INSTALL_PACKAGES allow`（前は未インストールで値なし） | アンインストールで消える（`appops set … default` でも） |
 | 2026-11-20 | `cmd notification allow_listener app.thetahatch.tvhome/app.thetahatch.tvhome.media.MediaListener` | `cmd notification disallow_listener …MediaListener`（アンインストールでも消える） |
