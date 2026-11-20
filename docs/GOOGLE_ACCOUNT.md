@@ -31,7 +31,7 @@
    Google Auth Platform →「対象」→「テストユーザー」→ 家族のアカウントのメールアドレスを追加
 2. **このアプリ用の Android の OAuth クライアント**（TVhome に 1 回）
    Google Auth Platform →「クライアント」→「クライアントを作成」
-   - 種類：Android
+   - 種類：**Android**（「テレビと入力が限られたデバイス」ではない。あれはテレビにコードを出してスマホで許可する別の方式で、TVhome は使わない）
    - 名前：`Theta TVhome Hatch Android`
    - パッケージ名：`app.thetahatch.tvhome`
    - SHA-1：`A1:13:EA:34:83:60:56:32:E7:F5:94:4E:4E:8C:20:55:DD:AE:28:BA`（シリーズ共通の鍵。Releases の APK はこの鍵で署名している）
