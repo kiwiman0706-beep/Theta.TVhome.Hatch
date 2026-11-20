@@ -26,7 +26,7 @@
 | USB の口・ストレージ | 調べた時点で USB ストレージはつながっていない（`/storage` は emulated だけ）。HDMI-CEC の口は 3 つ（port 0 は ARC） |
 | リモコン | IR（`IR_aeha`）と Bluetooth（`SHARP TV BTRC 003`、音声ボタン用） |
 | TVhome を入れたか・版 | 入れた：0.6.0（versionCode 7、2026-11-20）。SHA256SUMS と署名 SHA-256 `f47740d8…3f012a23` を照合。720p でも表示は崩れない |
-| 既定のホームにしたか・戻し方を確かめたか | **できない**（下の「既定のホーム」）。レスキューは ADB の OPEN rescue で開くのを確認 |
+| 既定のホームにしたか・戻し方を確かめたか | **した**（2026-11-20）。純正の tvlauncher を `pm disable-user` で止めて（利用者の OK あり、このテレビだけ）、TVhome を既定に。ホームボタン・再起動のあとも TVhome。戻し方は下の表 |
 
 ## リモコンのボタン（2026-11-20、IR）
 
@@ -81,8 +81,24 @@
 
 - `cmd package set-home-activity app.thetahatch.tvhome/.MainActivity` は Success、`dumpsys role` の HOME も TVhome になった。**それでもホームボタンでは純正が開く**
 - 理由：純正の `com.google.android.tvlauncher/.MainActivity` の HOME の受け口が priority=2（TVhome は 0）。システムアプリの高い優先度が、既定の選択より勝つ
-- 変えるには純正を無効化するしかない（`pm disable-user`）が、文鎮を避けるため**しない**。純正に戻した（`set-home-activity com.google.android.tvlauncher/.MainActivity`、role も tvlauncher に戻ったのを確認）
-- 使い方：アプリの一覧（リモコンの「アプリ」）から TVhome を開く。専用ボタンへの割り当ては Rtk が先に受けるので難しい
+- 変えるには純正を無効化するしかない。いったん純正に戻したあと、**利用者が「このテレビは純正を止めてよい」と決めた**ので、次のようにした（2026-11-20）：
+  1. `pm disable-user --user 0 com.google.android.tvlauncher`（前は enabled、版 7.3.11-842703803-f）
+  2. `cmd package set-home-activity app.thetahatch.tvhome/.MainActivity` → HOME の解決も role も TVhome
+  3. ホームボタン（`input keyevent KEYCODE_HOME`）で TVhome。`adb reboot` のあと（約 30 秒で起動）も TVhome が前面
+- 純正を止めたので、リモコンの「アプリ」ボタン（tvlauncher の AppsViewActivity を開く）と、純正ホームの「TV Menu」のタイル（番組表など）は使えない見込み（未確認）。番組表は StationTV の中で出す
+- 残っている予備のホーム：`com.apps.tvsettings/.ui.FallbackHome`・`com.android.tv.settings/.system.FallbackHome`（TVhome が消えても真っ暗にはならない）
+
+### 最悪のときの戻り道（出荷時設定へのリセット）
+
+- 設定アプリ（`com.android.tv.settings`）は止めていない。**リセットの場所**：設定 → デバイス設定 → **デバイス情報 → 出荷時設定にリセット**（`com.android.tv.settings/.about.AboutActivity` の中にあるのを画面で確認。押してはいない）
+- そこへの行き方：
+  - TVhome のレスキュー（リモコンの「戻る」を すばやく 7 回、または ADB の `OPEN --es screen rescue`）→「Android の設定を開く」→ 設定（`MainSettings` が開くのを確認）
+  - PC から：`adb shell am start -n com.android.tv.settings/.about.AboutActivity`
+- PC から元に戻す（リセットしなくてよい）：`adb shell pm enable com.google.android.tvlauncher` のあと `adb shell cmd package set-home-activity com.google.android.tvlauncher/.MainActivity`
+- ADB のリカバリー：`adb reboot recovery`（A/B の機種、`ro.build.ab_update=true`。動くかは**未確認**）
+- 本体のボタンだけでリカバリーに入る方法は**未確認**
+- 「ストレージ」の画面（`StorageResetActivity`）にはリセットの項目は無い
+
 
 ## 4T-C65DQ2（自宅）とのちがい
 
@@ -92,7 +108,7 @@
 - 中身が SCBC 製のビルド（`ro.product.manufacturer`=SCBC）。放送は Pixela の StationTV（`jp.pixela.atv_app`）、キーは `com.realtek.keyinterceptserver` が受ける。自宅の AQUOS（シャープ純正のビルド）とは、放送・録画の画面とキーの仕組みが違うはず
 - 純正のホームは Google TV ではなく **Android TV の tvlauncher**（`com.google.android.tvlauncher`）
 - ユーザー補助の設定画面が無い
-- 純正のホームの優先度が高く、TVhome を既定のホームにできない（自宅でできるかは未確認）
+- 純正のホーム（tvlauncher）の優先度が高く、止めないと TVhome を既定のホームにできない（このテレビは止めた。自宅でどうかは未確認）
 - 「ワイヤレスデバッグ」は使わず、USB デバッグだけでネットワークの 5555 でつながった（自宅と同じ想定の流れ）
 
 ## 入れた物・許可した物・変えた設定（戻すときに使う）
@@ -105,6 +121,11 @@
 | 2026-11-20 | `cmd notification allow_listener app.thetahatch.tvhome/app.thetahatch.tvhome.media.MediaListener` | `cmd notification disallow_listener …MediaListener`（アンインストールでも消える） |
 | 2026-11-20 | TVhome の設定 `entry.tv` = `intent:#Intent;component=jp.pixela.xit.smarttuner/jp.pixela.player_service.TvTunerService;end`（前は空＝自動） | `SET --es key entry.tv --es value ""` |
 | 2026-11-20 | `set-home-activity` で TVhome にした → 効かないので**すぐ純正に戻した**（HOME の role＝tvlauncher） | 変更なし（元どおり） |
+| 2026-11-20 | `pm disable-user --user 0 com.google.android.tvlauncher`（前は enabled）（利用者の OK あり） | `adb shell pm enable com.google.android.tvlauncher` |
+| 2026-11-20 | `cmd package set-home-activity app.thetahatch.tvhome/.MainActivity`（前は role＝tvlauncher） | `cmd package set-home-activity com.google.android.tvlauncher/.MainActivity`（tvlauncher を enable してから） |
+| 2026-11-20 | スクリーンセーバーを止めた：`settings put secure screensaver_enabled 0`（前は 1）、`screensaver_activate_on_sleep 0`（前は 1）、`screensaver_activate_on_dock 0`（前は 1）。スクリーンセーバーは `com.google.android.backdrop/.Backdrop` | 同じキーを 1 に |
+| 2026-11-20 | `settings put system screen_off_timeout 86400000`（前は 300000＝5 分。スクリーンセーバーを止めると 5 分で画面が消えるのを避ける） | `settings put system screen_off_timeout 300000` |
+| — | 変えていない：`secure sleep_timeout=86400000`（操作が 24 時間無いと電源オフ。節電の安全策として残した） | — |
 
 ## メモ
 
