@@ -6,6 +6,11 @@ import app.thetahatch.tvhome.media.NowPlaying
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import app.thetahatch.tvhome.data.AppItem
+import app.thetahatch.tvhome.music.Music
+import app.thetahatch.tvhome.music.MusicLib
+import app.thetahatch.tvhome.nas.Dsm
+import app.thetahatch.tvhome.nas.NasEntry
+import app.thetahatch.tvhome.nas.OtpRequired
 import app.thetahatch.tvhome.data.AppList
 import app.thetahatch.tvhome.data.Entries
 import app.thetahatch.tvhome.data.Entry
@@ -38,6 +43,16 @@ class HomeState(private val app: TvHomeApp) {
     /** Google の許可の画面（MainActivity が出す）。 */
     val consent = MutableStateFlow<android.app.PendingIntent?>(null)
     val gcal by lazy { GCal(app) }
+    val dsm by lazy { Dsm(store) }
+    val music by lazy { Music(app, dsm) }
+    /** おんがくの棚（NAS の音楽のフォルダの直下）。 */
+    val musicShelves = MutableStateFlow<List<NasEntry>>(emptyList())
+    /** NAS の困りごと（届かない・2 段階認証 など）。 */
+    val nasError = MutableStateFlow<String?>(null)
+    val nasNeedsOtp = MutableStateFlow(false)
+    /** おんがくの画面で開くフォルダ（空ならいちばん上）。 */
+    val musicPath = MutableStateFlow("")
+    private var shelvesAt = 0L
     /** 設定が変わるたびに増える（画面の読み直し用）。 */
     private val _tick = MutableStateFlow(0)
     val tick: StateFlow<Int> = _tick
@@ -58,6 +73,7 @@ class HomeState(private val app: TvHomeApp) {
     /** 画面が出るたびに呼ぶ。30 分より古ければ読み直す。 */
     fun onShown() {
         reloadApps()
+        refreshMusicShelves()
         refreshWeather()
         refreshCalendar()
         // セーフモード、または最近落ちた・固まったときは、自動の更新をしない（壊れた版を重ねて入れないため）
@@ -110,6 +126,25 @@ class HomeState(private val app: TvHomeApp) {
                     } else calendarError.value = e.message ?: "読めません"
                 }
         }
+    }
+
+    /** 音楽の共有フォルダ（既定 /music）。 */
+    val musicRoot get() = store.get("nas.music")?.ifBlank { null } ?: "/music"
+
+    fun refreshMusicShelves(force: Boolean = false) {
+        if (app.safeMode || !dsm.configured) return
+        if (!force && System.currentTimeMillis() - shelvesAt < 30 * 60_000L && musicShelves.value.isNotEmpty()) return
+        shelvesAt = System.currentTimeMillis()
+        app.scope.launch {
+            runCatching { withContext(Dispatchers.IO) { MusicLib.shelves(dsm.list(musicRoot)) } }
+                .onSuccess { musicShelves.value = it; nasError.value = null; nasNeedsOtp.value = false }
+                .onFailure { e -> shelvesAt = 0; nasProblem(e) }
+        }
+    }
+
+    fun nasProblem(e: Throwable) {
+        nasNeedsOtp.value = e is OtpRequired
+        nasError.value = e.message ?: "NAS につながりません"
     }
 
     /** せってい：Google カレンダーにつなぐ（許可の画面を出す）。 */

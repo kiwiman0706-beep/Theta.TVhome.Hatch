@@ -125,4 +125,24 @@ class LogicTest {
         assertTrue(app.thetahatch.tvhome.data.GCal.parse(day, tokyo)!!.allDay)
         assertEquals(null, app.thetahatch.tvhome.data.GCal.parse(org.json.JSONObject("""{"status":"cancelled","start":{"date":"2026-11-18"}}"""), tokyo))
     }
+
+    @Test fun musicFolders() {
+        val ml = app.thetahatch.tvhome.music.MusicLib
+        fun d(n: String) = app.thetahatch.tvhome.nas.NasEntry("/music/$n", n, true, 0, 0)
+        fun f(n: String) = app.thetahatch.tvhome.nas.NasEntry("/music/x/$n", n, false, 1, 0)
+        assertEquals(listOf("▶洋楽", "▶邦楽"), ml.shelves(listOf(d("▶洋楽"), d("Artist"), d("▶邦楽"), d("_整理の記録"), d("▶ミュージックビデオ"))).map { it.name })
+        assertEquals(listOf("A", "B"), ml.shelves(listOf(d("B"), d("A"), d("@eaDir"))).map { it.name })
+        assertEquals("Hello", ml.title("01 Hello.flac"))
+        assertEquals("Hello World", ml.title("1-03. Hello World.mp3"))
+        assertEquals("2001", ml.title("2001.mp3"))
+        assertEquals(listOf("2 b.mp3", "10 a.mp3"), ml.sort(listOf(f("10 a.mp3"), f("2 b.mp3"), f("cover.jpg"))).map { it.name })
+        assertEquals("cover.jpg", ml.cover(listOf(f("01 a.mp3"), f("Cover.JPG").copy(name = "cover.jpg")))?.name)
+    }
+
+    @Test fun nasUrl() {
+        val n = app.thetahatch.tvhome.nas.Dsm
+        assertEquals("http://192.168.1.5:5000", n.normalize("192.168.1.5"))
+        assertEquals("http://nas.ts.net:5001/x", n.normalize("nas.ts.net:5001/x/"))
+        assertEquals("https://nas:5001", n.normalize("https://nas:5001"))
+    }
 }

@@ -2,6 +2,8 @@ package app.thetahatch.tvhome.ui
 
 import app.thetahatch.tvhome.TvHomeApp
 import app.thetahatch.tvhome.data.AppItem
+import app.thetahatch.tvhome.music.MusicLib
+import app.thetahatch.tvhome.nas.NasEntry
 import app.thetahatch.tvhome.data.Entry
 import app.thetahatch.tvhome.data.Event
 import app.thetahatch.tvhome.data.Forecast
@@ -36,6 +38,8 @@ fun buildCategories(
     guarded: (() -> Unit) -> Unit,
     /** false：ぜんぶのアプリは出さない（クロスバーは右上の「ぜんぶのアプリ」から） */
     withAll: Boolean = true,
+    /** おんがくの棚（NAS）。空でも NAS の設定があれば「おんがく」を出す */
+    music: List<NasEntry> = emptyList(),
 ): List<Category> {
     val s = app.store
     val hidden = s.hidden
@@ -55,8 +59,18 @@ fun buildCategories(
         add(Item("updates", "こうしん", "⟳", badge = updates.takeIf { it > 0 }?.toString(), sub = if (updates > 0) "あたらしい版が $updates こ" else null, onClick = { guarded { go("updates") } }))
         add(Item("settings", "せってい", "⚙", onClick = { guarded { go("settings") } }))
     }
+    val musicItems = buildList {
+        if (!app.state.dsm.configured) add(Item("nas", "NAS を せっていする", "⚙", sub = "NAS の音楽・動画・本を見るには", onClick = { guarded { go("settings") } }))
+        else {
+            val last = s.musicLast
+            if (last.isNotBlank()) add(Item("music-last", "つづきから", "⏯", sub = MusicLib.shelfName(last.trimEnd('/').substringAfterLast('/')), onClick = { app.state.musicPath.value = last; go("music") }))
+            music.forEach { e -> add(Item("m:" + e.path, MusicLib.shelfName(e.name), "💿", onClick = { app.state.musicPath.value = e.path; go("music") })) }
+            add(Item("music-all", "ぜんぶの おんがく", "🎵", sub = app.state.musicRoot, onClick = { app.state.musicPath.value = ""; go("music") }))
+        }
+    }
     return buildList {
         add(Category("tv", "テレビ", "📺", tv))
+        add(Category("music", "おんがく", "🎵", musicItems))
         if (fav.isNotEmpty() || !kids) add(Category("fav", "すき", "⭐", fav))
         if (!kids && withAll) add(Category("apps", "アプリ", "▦", rest))
         add(Category("hatch", "せってい", "⚙", hatch))

@@ -113,9 +113,10 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
     val hub by UpdateHub.status.collectAsState()
     val net by NetStatus.state.collectAsState()
     val playing by NowPlaying.state.collectAsState()
+    val shelves by state.musicShelves.collectAsState()
     val p = LocalPalette.current
     val updates = Catalog.android.count { UpdateHub.hasNewer(it, hub[it.id] ?: return@count false) }
-    val base = remember(tick, apps, entries, updates) { buildCategories(app, apps, entries, updates, go, menu, guarded, withAll = false) }
+    val base = remember(tick, apps, entries, updates, shelves) { buildCategories(app, apps, entries, updates, go, menu, guarded, withAll = false, music = shelves) }
     val cats = remember(base) { listOf(Category("cal", "カレンダー", "📅", emptyList())) + base.map { if (it.key == "fav") it.copy(label = "アプリ", icon = "⭐") else it } }
     val colors = listOf(p.accent2, p.accent, p.accent3, p.widget, p.launch)
 

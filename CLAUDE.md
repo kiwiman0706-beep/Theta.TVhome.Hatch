@@ -22,8 +22,9 @@ GitHub の kiwiman0706-beep/Theta.Hatch.Series にあり、このリポジトリ
 
 ## このリポジトリの決まり
 
-- 軽さ優先：起動を速く、裏で重い処理をしない。依存を増やすときは APK の大きさを確かめる（0.2.0 で約 3.2MB。うち DotGothic16 の書体が約 0.7MB）
+- 軽さ優先：起動を速く、裏で重い処理をしない。依存を増やすときは APK の大きさを確かめる（0.7.0 で約 5MB。書体・Google の許可・再生の部品。えいがで mpv を足すと +25MB ほど）
 - リモコンだけで全部できること（十字キー・決定・戻る・メニュー）。子どもが迷わない言葉（ひらがな多め）
 - 版を上げるときは `app/build.gradle.kts` の versionCode・versionName と `docs/release-notes/v<版>.md`。main に push すると Release が出る
 - 実機（AQUOS）で確かめていないことは `TESTING.md` に「未確認」と書く。実機の調べた結果は `docs/device/4T-C65DQ2.md`
+- **Movie・Music・Book の機能は TVhome に内蔵**（docs/SIBLINGS.md）。版を上げる前に `python tools/sibling_updates.py` で元のアプリの新しい版を見て、取り込むかを docs/SIBLINGS.md に書く
 - 画面の見本：`./gradlew :app:testDebugUnitTest` で `docs/screenshots/` を描き直す

@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -83,12 +84,22 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
     var placeQuery by remember { mutableStateOf("") }
     var places by remember { mutableStateOf<List<Place>>(emptyList()) }
     var placeMsg by remember { mutableStateOf<String?>(null) }
+    // 文字を入れる（見出し・キー・伏せ字）
+    var textAsk by remember { mutableStateOf<Triple<String, String, Boolean>?>(null) }
     val scope = rememberCoroutineScope()
     val p = LocalPalette.current
     val changed = { app.settingsChanged() }
     // tick を読む（ADB などで変わったら描き直す）
     @Suppress("UNUSED_EXPRESSION") tick
 
+    textAsk?.let { (title, key, secret) ->
+        TextPrompt(title, if (secret) "" else s.get(key).orEmpty(), secret, { v ->
+            if (secret) s.setSecret(key, v.trim()) else s.put(key, v.trim())
+            if (key.startsWith("nas.")) { app.state.dsm.reset(); app.state.refreshMusicShelves(force = true) }
+            textAsk = null; changed()
+        }, { textAsk = null })
+        return
+    }
     Page("せってい", first) {
         item { SectionTitle("見た目") }
         item {
@@ -140,6 +151,23 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
         }
         placeMsg?.let { m -> item { T(m, size = 20.sp, color = p.muted) } }
         items(places) { pl -> RowButton(pl.name, "%.2f, %.2f".format(pl.lat, pl.lon), onClick = { s.weatherPlace = pl.encode(); places = emptyList(); changed() }) }
+
+        item { SectionTitle("NAS（おんがく・えいが・ほん）") }
+        item {
+            val err by app.state.nasError.collectAsState()
+            val otp by app.state.nasNeedsOtp.collectAsState()
+            val shelvesNow by app.state.musicShelves.collectAsState()
+            RowButton("接続を確かめる", if (shelvesNow.isNotEmpty()) "OK（棚 ${shelvesNow.size}）" else if (app.state.dsm.configured) "未確認" else "未設定",
+                onClick = { app.state.dsm.reset(); app.state.refreshMusicShelves(force = true) },
+                note = err ?: "DSM の File Station でつなぎます（Theta Movie Hatch・Book Hatch と同じ）。家の外は Tailscale")
+            if (otp) RowButton("2 段階認証の確認コードを入れる", null, onClick = {
+                askPin("確認コード（6 けた）") { code -> app.state.dsm.setOtp(code); app.state.refreshMusicShelves(force = true) }
+            }, note = "1 回入れれば、次から要りません")
+        }
+        item { RowButton("NAS の URL", s.get("nas.url")?.ifBlank { null } ?: "未設定", onClick = { textAsk = Triple("NAS の URL（例 http://nas.tailXXXX.ts.net:5000 か 192.168.x.x）", "nas.url", false) }) }
+        item { RowButton("ユーザー名", s.get("nas.user")?.ifBlank { null } ?: "未設定", onClick = { textAsk = Triple("NAS のユーザー名", "nas.user", false) }) }
+        item { RowButton("パスワード", if (s.hasSecret("nas.password")) "設定済み" else "未設定", onClick = { textAsk = Triple("NAS のパスワード", "nas.password", true) }, note = "テレビの中で暗号化して持ちます。ADB の SET_SECRET でも入れられます") }
+        item { RowButton("音楽のフォルダ", app.state.musicRoot, onClick = { textAsk = Triple("音楽の共有フォルダ（例 /music）", "nas.music", false) }) }
 
         item { SectionTitle("カレンダー") }
         item {
@@ -243,6 +271,30 @@ fun AllAppsScreen(app: TvHomeApp, menu: (TileMenu) -> Unit, guarded: (() -> Unit
                     focusRequester = if (a == apps.first()) first else null,
                     onClick = { app.state.launch(a.intent) }, onMenu = { guarded { menu(appMenu(app, a)) } })
             }
+        }
+    }
+}
+
+/** 文字を入れる（テレビの文字入力・BT キーボード）。secret は伏せ字。 */
+@Composable
+fun TextPrompt(title: String, initial: String, secret: Boolean, onDone: (String) -> Unit, onCancel: () -> Unit) {
+    val p = LocalPalette.current
+    var text by remember { mutableStateOf(initial) }
+    val field = remember { FocusRequester() }
+    LaunchedEffect(Unit) { delay(100); runCatching { field.requestFocus() } }
+    Box(Modifier.fillMaxSize().background(p.bg.copy(alpha = 0.92f)), contentAlignment = Alignment.Center) {
+        Column(Modifier.width(640.dp).background(p.panel).border(2.dp, p.accent).padding(24.dp)) {
+            T(title, size = 26.sp, modifier = Modifier.padding(bottom = 12.dp))
+            BasicTextField(
+                text, { text = it }, singleLine = true,
+                textStyle = TextStyle(color = p.fg, fontSize = 24.sp), cursorBrush = SolidColor(p.accent),
+                visualTransformation = if (secret) androidx.compose.ui.text.input.PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = if (secret) androidx.compose.ui.text.input.KeyboardType.Password else androidx.compose.ui.text.input.KeyboardType.Uri),
+                keyboardActions = KeyboardActions(onDone = { onDone(text) }),
+                modifier = Modifier.fillMaxWidth().focusRequester(field).border(2.dp, p.line).padding(16.dp),
+            )
+            RowButton("OK", null, onClick = { onDone(text) })
+            RowButton("やめる", null, onClick = onCancel)
         }
     }
 }

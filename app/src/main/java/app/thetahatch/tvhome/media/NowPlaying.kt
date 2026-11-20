@@ -69,7 +69,7 @@ object NowPlaying {
     }
 
     private fun publish() {
-        val c = controller ?: run { _state.value = null; return }
+        val c = controller ?: run { _state.value = own; return }
         val m = c.metadata ?: run { _state.value = null; return }
         val st = c.playbackState
         val title = m.getString(MediaMetadata.METADATA_KEY_TITLE) ?: m.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
@@ -85,6 +85,14 @@ object NowPlaying {
 
     /** 試験用。 */
     fun setForTest(p: Playing?) { _state.value = p }
+
+    /** このアプリ自身の再生（おんがく）。ほかのアプリの再生が見えていなければ、こちらを出す。 */
+    @Volatile private var own: Playing? = null
+    fun setOwn(p: Playing?) {
+        own = p
+        if (controller == null || controller?.packageName == ctxPackage()) _state.value = p
+    }
+    private fun ctxPackage() = if (::ctx.isInitialized) ctx.packageName else ""
 }
 
 /** メディアセッションを読むための入口（通知そのものは使わない）。 */

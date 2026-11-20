@@ -26,6 +26,11 @@ class Store(context: Context) {
         get() = prefs.getString("kids.theme", "usagi") ?: "usagi"
         set(v) = prefs.edit().putString("kids.theme", v).apply()
 
+    /** おんがく：さいごに開いたフォルダ（つづきから）。 */
+    var musicLast: String
+        get() = prefs.getString("music.last", "") ?: ""
+        set(v) = prefs.edit().putString("music.last", v).apply()
+
     /** 予定を Google カレンダーの API で読む（せってい → Google カレンダーにつなぐ）。 */
     var googleCalendar: Boolean
         get() = prefs.getBoolean("calendar.google", false)

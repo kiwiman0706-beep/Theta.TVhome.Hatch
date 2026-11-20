@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <!-- ホーム画面：入っているアプリの一覧 -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <!-- 更新のハブ（spec §6.1）：TV では TVhome がハブ -->
@@ -83,6 +85,17 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- おんがく：裏で鳴らす。ホームと別のプロセス（再生で落ちてもホームは落ちない） -->
+        <service
+            android:name=".music.PlayerService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback"
+            android:process=":player">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
 
         <!-- いま再生中のもの（メディアセッション）を読むための入口。許可は ADB（docs/ADB.md） -->
         <service

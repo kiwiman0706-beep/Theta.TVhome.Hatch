@@ -21,8 +21,8 @@ android {
         applicationId = "app.thetahatch.tvhome"
         minSdk = 28
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.6.0"
+        versionCode = 8
+        versionName = "0.7.0"
     }
 
     // シリーズ共通の鍵（Theta.Hatch.Series の secrets/README.md）。
@@ -79,6 +79,9 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     // Google カレンダー：テレビの Google アカウントでの許可（Home.Hatch の Gmail と同じ）
     implementation("com.google.android.gms:play-services-auth:21.4.0")
+    // おんがく：再生（別プロセスのサービス）
+    implementation("androidx.media3:media3-exoplayer:1.8.0")
+    implementation("androidx.media3:media3-session:1.8.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
     // 画面の見本（スクリーンショット）を JVM 上で描く
