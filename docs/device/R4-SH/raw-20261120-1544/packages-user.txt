@@ -1,0 +1,11 @@
+package:jp.co.tver.tvapp
+package:jp.unext.tv.player
+package:com.google.android.youtube.tvkids
+package:air.jp.co.fujitv.fodviewer.tv
+package:tv.abema
+package:com.google.android.apps.tachyon
+package:com.google.android.videos
+package:jp.paravi.androidtv
+package:com.apple.atve.androidtv.appletv
+package:com.disney.disneyplus
+package:jp.happyon.android

@@ -1,0 +1,46 @@
+mProhibitMode: false
+mPowerStatus: 0
+System_settings:
+  mHdmiControlEnabled: true
+  mMhlInputChangeEnabled: true
+  mSystemAudioActivated: false
+  mHdmiCecVolumeControlEnabled true
+mMhlController: 
+mPortInfo:
+  port_id: 0, type: HDMI_OUT, address: 0x1000, cec: true, arc: true, mhl: false
+  port_id: 1, type: HDMI_OUT, address: 0x2000, cec: true, arc: false, mhl: false
+  port_id: 2, type: HDMI_OUT, address: 0x3000, cec: true, arc: false, mhl: false
+mCecController: 
+  HdmiCecLocalDevice #0:
+    mDeviceType: 0
+    mAddress: 0
+    mPreferredAddress: 0
+    mDeviceInfo: CEC: logical_address: 0x00 device_type: 0 vendor_id: 4332 display_name: R4-SH power_status: 0 physical_address: 0x0000 port_id: -1
+    mActiveSource: (invalid, invalid)
+    mActiveRoutingPath: 0x0000
+    mArcEstablished: false
+    mArcFeatureEnabled: {0=true, 1=false, 2=false}
+    mSystemAudioMute: false
+    mSystemAudioControlFeatureEnabled: true
+    mAutoDeviceOff: true
+    mAutoWakeup: true
+    mSkipRoutingControl: false
+    mPrevPortId: -1
+    CEC devices:
+      CEC: logical_address: 0x00 device_type: 0 vendor_id: 4332 display_name: R4-SH power_status: 0 physical_address: 0x0000 port_id: -1
+  CEC message history:
+    [S] time=2026-11-19 10:03:30 message=<Report Physical Address> 0F:84:00:00:00
+    [S] time=2026-11-19 10:03:30 message=<Device Vendor Id> 0F:87:00:10:EC
+    [S] time=2026-11-19 10:03:30 message=<Active Source> 0F:82:00:00
+    [S] time=2026-11-19 10:03:30 message=<Request Active Source> 0F:85
+    [S] time=2026-11-19 10:03:33 message=<Report Physical Address> 0F:84:00:00:00
+    [S] time=2026-11-19 10:03:33 message=<Device Vendor Id> 0F:87:00:10:EC
+    [S] time=2026-11-19 10:03:34 message=<Request Active Source> 0F:85
+    [S] time=2026-11-19 12:13:40 message=<Standby> 0F:36
+    [S] time=2026-11-19 12:59:05 message=<Report Physical Address> 0F:84:00:00:00
+    [S] time=2026-11-19 12:59:05 message=<Device Vendor Id> 0F:87:00:10:EC
+    [S] time=2026-11-19 12:59:05 message=<Request Active Source> 0F:85
+    [S] time=2026-11-19 14:01:38 message=<Standby> 0F:36
+    [S] time=2026-11-20 15:37:55 message=<Report Physical Address> 0F:84:00:00:00
+    [S] time=2026-11-20 15:37:55 message=<Device Vendor Id> 0F:87:00:10:EC
+    [S] time=2026-11-20 15:37:55 message=<Request Active Source> 0F:85

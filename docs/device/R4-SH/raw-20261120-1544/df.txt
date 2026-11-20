@@ -1,0 +1,3 @@
+Filesystem       Size  Used Avail Use% Mounted on
+/dev/block/dm-22 7.6G  2.9G  4.6G  39% /storage/emulated/0/Android/obb
+/dev/fuse        7.6G  2.9G  4.6G  39% /storage/emulated

@@ -1,0 +1,118 @@
+NetworkProviders for: WifiNetworkFactory Ethernet UntrustedWifiNetworkFactory
+
+Active default network: 100
+
+Current Networks:
+  NetworkAgentInfo{ ni{[type: WIFI[], state: CONNECTED/CONNECTED, reason: (unspecified), extra: , failover: false, available: true, roaming: false]}  network{100}  nethandle{432902426637}  lp{{InterfaceName: wlan0 LinkAddresses: [ fe80::<伏せた>/64,192.168.24.28/24,<IPv6 を伏せた>/64,<IPv6 を伏せた>/64,<IPv6 を伏せた>/64 ] DnsAddresses: [ /192.168.24.1 ] Domains: null MTU: 0 ServerAddress: /192.168.24.1 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ fe80::/64 -> :: wlan0 mtu 0,::/0 -> fe80::<伏せた> wlan0 mtu 0,<IPv6 を伏せた>::/64 -> :: wlan0 mtu 0,192.168.24.0/24 -> 0.0.0.0 wlan0 mtu 0,0.0.0.0/0 -> 192.168.24.1 wlan0 mtu 0 ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=672000Kbps LinkDnBandwidth>=672000Kbps SignalStrength: -43 OwnerUid: 10039 SSID: "<伏せた>" RequestorUid: -1 RequestorPackageName: null]}  Score{60}  everValidated{true}  lastValidated{true}  created{true} lingering{false} explicitlySelected{false} acceptUnvalidated{false} everCaptivePortalDetected{false} lastCaptivePortalDetected{false} partialConnectivity{false} acceptPartialConnectivity{false} clat{mBaseIface: null, mIface: null, mState: IDLE} }
+    Requests: REQUEST:2 LISTEN:31 BACKGROUND_REQUEST:0 total:33
+      NetworkRequest [ REQUEST id=1, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ LISTEN id=4, [ Capabilities: FOREGROUND AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ LISTEN id=5, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ LISTEN id=6, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ TRACK_DEFAULT id=8, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ TRACK_DEFAULT id=9, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ LISTEN id=10, [ Transports: WIFI Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ REQUEST id=11, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+      NetworkRequest [ LISTEN id=15, [ Transports: WIFI|ETHERNET Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: com.apps.authota] ]
+      NetworkRequest [ TRACK_DEFAULT id=16, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10034 AdministratorUids: [] RequestorUid: 10034 RequestorPackageName: com.google.android.tvlauncher] ]
+      NetworkRequest [ TRACK_DEFAULT id=17, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10034 AdministratorUids: [] RequestorUid: 10034 RequestorPackageName: com.google.android.tvlauncher] ]
+      NetworkRequest [ TRACK_DEFAULT id=18, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10034 AdministratorUids: [] RequestorUid: 10034 RequestorPackageName: com.google.android.tvlauncher] ]
+      NetworkRequest [ TRACK_DEFAULT id=19, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10037 AdministratorUids: [] RequestorUid: 10037 RequestorPackageName: com.google.android.tvrecommendations] ]
+      NetworkRequest [ LISTEN id=20, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10037 AdministratorUids: [] RequestorUid: 10037 RequestorPackageName: com.google.android.tvrecommendations] ]
+      NetworkRequest [ TRACK_DEFAULT id=198, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10033 AdministratorUids: [] RequestorUid: 10033 RequestorPackageName: com.google.android.apps.mediashell] ]
+      NetworkRequest [ LISTEN id=199, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10033 AdministratorUids: [] RequestorUid: 10033 RequestorPackageName: com.google.android.apps.mediashell] ]
+      NetworkRequest [ TRACK_DEFAULT id=256, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10040 AdministratorUids: [] RequestorUid: 10040 RequestorPackageName: com.android.vending] ]
+      NetworkRequest [ LISTEN id=257, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10040 AdministratorUids: [] RequestorUid: 10040 RequestorPackageName: com.android.vending] ]
+      NetworkRequest [ LISTEN id=262, [ Capabilities: INTERNET&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+      NetworkRequest [ TRACK_DEFAULT id=263, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+      NetworkRequest [ TRACK_DEFAULT id=264, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+      NetworkRequest [ TRACK_DEFAULT id=265, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+      NetworkRequest [ TRACK_DEFAULT id=269, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+      NetworkRequest [ LISTEN id=270, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+      NetworkRequest [ TRACK_DEFAULT id=274, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10078 AdministratorUids: [] RequestorUid: 10078 RequestorPackageName: com.google.android.youtube.tvkids] ]
+      NetworkRequest [ TRACK_DEFAULT id=275, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10078 AdministratorUids: [] RequestorUid: 10078 RequestorPackageName: com.google.android.youtube.tvkids] ]
+      NetworkRequest [ LISTEN id=276, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10078 AdministratorUids: [] RequestorUid: 10078 RequestorPackageName: com.google.android.youtube.tvkids] ]
+      NetworkRequest [ TRACK_DEFAULT id=277, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10046 AdministratorUids: [] RequestorUid: 10046 RequestorPackageName: com.google.android.videos] ]
+      NetworkRequest [ LISTEN id=278, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10046 AdministratorUids: [] RequestorUid: 10046 RequestorPackageName: com.google.android.videos] ]
+      NetworkRequest [ TRACK_DEFAULT id=281, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10030 AdministratorUids: [] RequestorUid: 10030 RequestorPackageName: com.google.android.backdrop] ]
+      NetworkRequest [ TRACK_DEFAULT id=282, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10030 AdministratorUids: [] RequestorUid: 10030 RequestorPackageName: com.google.android.backdrop] ]
+      NetworkRequest [ TRACK_DEFAULT id=285, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10030 AdministratorUids: [] RequestorUid: 10030 RequestorPackageName: com.google.android.backdrop] ]
+      NetworkRequest [ TRACK_DEFAULT id=287, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10029 AdministratorUids: [] RequestorUid: 10029 RequestorPackageName: com.netflix.ninja] ]
+    Lingered:
+
+Restrict background: false
+
+Status for known UIDs:
+  UID=10035 rules=1 (ALLOW_METERED)
+  
+Network Requests:
+  uid/pid:1000/1140 NetworkRequest [ REQUEST id=1, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ BACKGROUND_REQUEST id=2, [ Transports: CELLULAR Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ LISTEN id=4, [ Capabilities: FOREGROUND AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ LISTEN id=5, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ LISTEN id=6, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ LISTEN id=7, [ Transports: CELLULAR Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ TRACK_DEFAULT id=8, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ TRACK_DEFAULT id=9, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ LISTEN id=10, [ Transports: WIFI Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/1140 NetworkRequest [ REQUEST id=11, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: android] ]
+  uid/pid:1000/2165 NetworkRequest [ LISTEN id=15, [ Transports: WIFI|ETHERNET Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN Uid: 1000 AdministratorUids: [] RequestorUid: 1000 RequestorPackageName: com.apps.authota] ]
+  uid/pid:10034/2416 NetworkRequest [ TRACK_DEFAULT id=16, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10034 AdministratorUids: [] RequestorUid: 10034 RequestorPackageName: com.google.android.tvlauncher] ]
+  uid/pid:10034/2416 NetworkRequest [ TRACK_DEFAULT id=17, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10034 AdministratorUids: [] RequestorUid: 10034 RequestorPackageName: com.google.android.tvlauncher] ]
+  uid/pid:10034/2416 NetworkRequest [ TRACK_DEFAULT id=18, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10034 AdministratorUids: [] RequestorUid: 10034 RequestorPackageName: com.google.android.tvlauncher] ]
+  uid/pid:10037/2370 NetworkRequest [ TRACK_DEFAULT id=19, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10037 AdministratorUids: [] RequestorUid: 10037 RequestorPackageName: com.google.android.tvrecommendations] ]
+  uid/pid:10037/2370 NetworkRequest [ LISTEN id=20, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10037 AdministratorUids: [] RequestorUid: 10037 RequestorPackageName: com.google.android.tvrecommendations] ]
+  uid/pid:10033/2895 NetworkRequest [ TRACK_DEFAULT id=198, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10033 AdministratorUids: [] RequestorUid: 10033 RequestorPackageName: com.google.android.apps.mediashell] ]
+  uid/pid:10033/2895 NetworkRequest [ LISTEN id=199, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10033 AdministratorUids: [] RequestorUid: 10033 RequestorPackageName: com.google.android.apps.mediashell] ]
+  uid/pid:10040/3320 NetworkRequest [ TRACK_DEFAULT id=256, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10040 AdministratorUids: [] RequestorUid: 10040 RequestorPackageName: com.android.vending] ]
+  uid/pid:10040/3320 NetworkRequest [ LISTEN id=257, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10040 AdministratorUids: [] RequestorUid: 10040 RequestorPackageName: com.android.vending] ]
+  uid/pid:10035/4065 NetworkRequest [ LISTEN id=262, [ Capabilities: INTERNET&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+  uid/pid:10035/4065 NetworkRequest [ TRACK_DEFAULT id=263, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+  uid/pid:10035/4065 NetworkRequest [ TRACK_DEFAULT id=264, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+  uid/pid:10035/4065 NetworkRequest [ TRACK_DEFAULT id=265, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+  uid/pid:10035/4065 NetworkRequest [ TRACK_DEFAULT id=269, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+  uid/pid:10035/4065 NetworkRequest [ LISTEN id=270, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10035 AdministratorUids: [] RequestorUid: 10035 RequestorPackageName: com.google.android.gms] ]
+  uid/pid:10078/2480 NetworkRequest [ TRACK_DEFAULT id=274, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10078 AdministratorUids: [] RequestorUid: 10078 RequestorPackageName: com.google.android.youtube.tvkids] ]
+  uid/pid:10078/2480 NetworkRequest [ TRACK_DEFAULT id=275, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10078 AdministratorUids: [] RequestorUid: 10078 RequestorPackageName: com.google.android.youtube.tvkids] ]
+  uid/pid:10078/2480 NetworkRequest [ LISTEN id=276, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10078 AdministratorUids: [] RequestorUid: 10078 RequestorPackageName: com.google.android.youtube.tvkids] ]
+  uid/pid:10046/2511 NetworkRequest [ TRACK_DEFAULT id=277, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10046 AdministratorUids: [] RequestorUid: 10046 RequestorPackageName: com.google.android.videos] ]
+  uid/pid:10046/2511 NetworkRequest [ LISTEN id=278, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&FOREGROUND Uid: 10046 AdministratorUids: [] RequestorUid: 10046 RequestorPackageName: com.google.android.videos] ]
+  uid/pid:10030/3241 NetworkRequest [ TRACK_DEFAULT id=281, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10030 AdministratorUids: [] RequestorUid: 10030 RequestorPackageName: com.google.android.backdrop] ]
+  uid/pid:10030/3241 NetworkRequest [ TRACK_DEFAULT id=282, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10030 AdministratorUids: [] RequestorUid: 10030 RequestorPackageName: com.google.android.backdrop] ]
+  uid/pid:10030/3241 NetworkRequest [ TRACK_DEFAULT id=285, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10030 AdministratorUids: [] RequestorUid: 10030 RequestorPackageName: com.google.android.backdrop] ]
+  uid/pid:10029/3423 NetworkRequest [ TRACK_DEFAULT id=287, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10029 AdministratorUids: [] RequestorUid: 10029 RequestorPackageName: com.netflix.ninja] ]
+
+mLegacyTypeTracker:
+  Supported types: 1 9 13 17
+  Current state:
+    1 [100 WIFI]
+
+
+Supported Socket keepalives: [1, 3, 0, 0, 0, 0, 0, 0]
+Reserved Privileged keepalives: 2
+Allowed Unprivileged keepalives per uid: 2
+Socket keepalives:
+
+Bad Wi-Fi avoidance: unrestricted
+
+MultipathPolicyTracker:
+
+NetworkStackClient logs:
+  2026-11-19T10:03:24.676 - Network stack init
+  2026-11-19T10:03:29.452 - Network stack service start requested
+  2026-11-19T10:03:32.568 - Network stack service connected
+  2026-11-19T10:03:32.574 - Network stack service registered
+  2026-11-19T10:03:24.673 - Network stack init
+  2026-11-19T10:03:29.448 - Starting networking module android.net.INetworkStackConnector
+  2026-11-19T10:03:29.449 - Starting networking module in system_server process
+  2026-11-19T10:03:29.452 - Networking module service start requested
+  2026-11-19T10:03:29.453 - Starting networking module android.net.ITetheringConnector
+  2026-11-19T10:03:29.454 - Starting networking module in system_server process
+  2026-11-19T10:03:29.457 - Networking module service start requested
+  2026-11-19T10:03:32.567 - Networking module service connected
+  2026-11-19T10:03:32.579 - Networking module service connected
+  
+  pendingNetStackRequests length: 0
+
+Permission Monitor:
+  Interface filtering rules:

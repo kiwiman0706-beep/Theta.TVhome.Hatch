@@ -1,0 +1,141 @@
+{
+  "surveyed": "2026-11-20T15:44:19",
+  "label": "職場",
+  "serial": "192.168.24.28:5555",
+  "props": {
+    "ro.product.model": "R4-SH",
+    "ro.product.manufacturer": "SCBC",
+    "ro.product.brand": "SHARP",
+    "ro.product.device": "R4",
+    "ro.product.name": "tchydhj",
+    "ro.build.version.release": "11",
+    "ro.build.version.sdk": "30",
+    "ro.build.version.security_patch": "2025-12-05",
+    "ro.build.fingerprint": "SHARP/tchydhj/R4:11/RTT7.240511.001/5046:user/release-keys",
+    "ro.board.platform": "rtd2851m",
+    "ro.hardware": "rtd2851m",
+    "ro.product.cpu.abi": "armeabi-v7a",
+    "ro.build.characteristics": "nosdcard,tv",
+    "ro.config.low_ram": null,
+    "ro.sf.lcd_density": "213"
+  },
+  "screen": [
+    "Physical size: 1280x720",
+    "Physical density: 213"
+  ],
+  "memTotalMB": 2048,
+  "home": [
+    "com.google.android.tvlauncher/.MainActivity"
+  ],
+  "homeCandidates": [
+    "3 activities found:",
+    "Activity #0:",
+    "priority=2 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+    "com.google.android.tvlauncher/.MainActivity",
+    "Activity #1:",
+    "priority=-999 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+    "com.apps.tvsettings/.ui.FallbackHome",
+    "Activity #2:",
+    "priority=-1000 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+    "com.android.tv.settings/.system.FallbackHome"
+  ],
+  "leanbackLaunchers": 82,
+  "intents": {
+    "all-apps-intent": [
+      "1 activities found:",
+      "Activity #0:",
+      "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+      "com.google.android.tvlauncher/.appsview.AppsViewActivity"
+    ],
+    "tv-view-channel": [
+      "No activities found"
+    ],
+    "tv-view-passthrough": [
+      "No activities found"
+    ],
+    "recording-schedules": [
+      "No activities found"
+    ],
+    "home-settings": [
+      "2 activities found:",
+      "Activity #0:",
+      "priority=2 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+      "com.google.android.permissioncontroller/com.android.permissioncontroller.role.ui.HomeSettingsActivity",
+      "Activity #1:",
+      "priority=1 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+      "com.android.tv.settings/.EmptyStubActivity"
+    ],
+    "unknown-sources-settings": [
+      "1 activities found:",
+      "Activity #0:",
+      "priority=1 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+      "com.android.tv.settings/.device.apps.specialaccess.ExternalSourcesActivity"
+    ],
+    "overlay-settings": [
+      "1 activities found:",
+      "Activity #0:",
+      "priority=1 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+      "com.android.tv.settings/.device.apps.specialaccess.SystemAlertActivity"
+    ],
+    "accessibility-settings": [
+      "1 activities found:",
+      "Activity #0:",
+      "priority=-1 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true",
+      "com.google.android.tv.frameworkpackagestubs/.Stubs$SettingsStub"
+    ]
+  },
+  "tvishPackages": [
+    "air.jp.co.fujitv.fodviewer.tv",
+    "com.android.providers.tv",
+    "com.android.tv.settings",
+    "com.apple.atve.androidtv.appletv",
+    "com.apps.tvsettings",
+    "com.creative.fastscreen.tv",
+    "com.google.android.apps.nbu.smartconnect.tv",
+    "com.google.android.tv.frameworkpackagestubs",
+    "com.google.android.tv.remote.service",
+    "com.google.android.tvlauncher",
+    "com.google.android.tvrecommendations",
+    "com.google.android.youtube.tv",
+    "com.google.android.youtube.tvkids",
+    "com.google.android.youtube.tvmusic",
+    "com.mk.service.tvmidware",
+    "com.mk.tv.booster",
+    "com.mk.tv.fivekey",
+    "com.mk.tv.meeting.service",
+    "com.mk.tv.networkspeed",
+    "com.mk.tv.timeclock",
+    "com.realtek.dtv",
+    "com.realtek.leanbacklauncher.partnercustomizer",
+    "com.realtek.tv",
+    "com.realtek.tv.atsc",
+    "com.realtek.tv.atv",
+    "com.realtek.tv.isdb",
+    "com.realtek.tv.passthrough",
+    "com.realtek.tvchannel",
+    "jp.co.tver.tvapp",
+    "jp.paravi.androidtv",
+    "jp.pixela.atv_app",
+    "jp.pixela.system.tuner.service",
+    "jp.pixela.xit.smarttuner",
+    "jp.unext.tv.player",
+    "tv.abema"
+  ],
+  "userPackages": [
+    "jp.co.tver.tvapp",
+    "jp.unext.tv.player",
+    "com.google.android.youtube.tvkids",
+    "air.jp.co.fujitv.fodviewer.tv",
+    "tv.abema",
+    "com.google.android.apps.tachyon",
+    "com.google.android.videos",
+    "jp.paravi.androidtv",
+    "com.apple.atve.androidtv.appletv",
+    "com.disney.disneyplus",
+    "jp.happyon.android"
+  ],
+  "disabledPackages": [],
+  "tvhome": {
+    "installed": false
+  }
+}

@@ -6,7 +6,7 @@
 | 型番 | 置き場所 | 使い方 | 調べた日 | 表 |
 | --- | --- | --- | --- | --- |
 | 4T-C65DQ2 | 自宅（リビング） | ホームを置き換える（TVhome） | 未 | [4T-C65DQ2.md](4T-C65DQ2.md) |
-| （職場に置いた私物のシャープの Android TV） | 職場（私物） | 調べる・アプリを入れる・TVhome を試す | 未 | — |
+| R4-SH（シャープ 2T-C24EF1） | 職場（私物） | 調べる・アプリを入れる・TVhome を試す | 2026-11-20 | [R4-SH.md](R4-SH.md) |
 
 - 新しいテレビ：`docs/PROMPT_LOCAL_DEVICE.md` の依頼文を、そのテレビと同じ LAN の PC のローカルの Claude Code に渡す
 - 自宅の AQUOS に TVhome を入れる：`docs/PROMPT_LOCAL_INSTALL.md`

@@ -1,0 +1,82 @@
+27 activities found:
+  Activity #0:
+    priority=3 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.android.tv.settings/.MainSettings
+  Activity #1:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.android.vending/com.google.android.finsky.tvmainactivity.TvMainActivity
+  Activity #2:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.apps.function.audiolink/.activity.AudioLinkActivity
+  Activity #3:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.apps.usbmediaplayer/.activity.MainActivity
+  Activity #4:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.google.android.youtube.tv/com.google.android.apps.youtube.tv.activity.ShellActivity
+  Activity #5:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.google.android.youtube.tvmusic/com.google.android.apps.youtube.tvmusic.activity.MainActivity
+  Activity #6:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.realtek.tvchannel/.MainActivity
+  Activity #7:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    com.google.android.youtube.tvkids/com.google.android.apps.youtube.tvkids.activity.MainActivity
+  Activity #8:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+    jp.paravi.androidtv/jp.paravi.tv.ui.activity.SplashActivity
+  Activity #9:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity
+  Activity #10:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.apps.channels/.ui.MainActivity
+  Activity #11:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.apps.ota/.ui.MainActivity
+  Activity #12:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.creative.fastscreen.tv/.activity.ad.Advertisement
+  Activity #13:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.google.android.play.games/com.google.android.apps.play.games.app.atv.features.home.HomeActivity
+  Activity #14:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.mk.tv.booster/com.apps.clear.activity.ClearMemoryActivity
+  Activity #15:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.mk.tv.networkspeed/com.apps.networkspeed.MainActivity
+  Activity #16:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.mk.tv.timeclock/com.apps.timeclock.TimeClockActivity
+  Activity #17:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.netflix.ninja/.MainActivity
+  Activity #18:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    air.jp.co.fujitv.fodviewer.tv/cp.boT
+  Activity #19:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.apple.atve.androidtv.appletv/.MainActivity
+  Activity #20:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.disney.disneyplus/com.bamtechmedia.dominguez.main.MainActivity
+  Activity #21:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.google.android.apps.tachyon/.ui.launcher.AtvLauncherActivity
+  Activity #22:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    com.google.android.videos/.tv.presenter.activity.TvLauncherActivity
+  Activity #23:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    jp.co.tver.tvapp/.tver.ui.splash.TVerSplashActivity
+  Activity #24:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    jp.happyon.android/.HomeActivity
+  Activity #25:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    jp.unext.tv.player/jp.co.unext.app.MainActivity
+  Activity #26:
+    priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+    tv.abema/.components.activity.LauncherActivity

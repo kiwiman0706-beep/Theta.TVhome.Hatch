@@ -1,0 +1,114 @@
+User Ids (Current user: 0):
+  0
+UserState (0):
+  inputMap: inputId -> TvInputState
+    com.realtek.tv.atv/.atvinput.AtvInputService/HW33619968: info: TvInputInfo{id=com.realtek.tv.atv/.atvinput.AtvInputService/HW33619968, pkg=com.realtek.tv.atv, service=com.realtek.tv.atv.atvinput.AtvInputService}; state: 0
+    com.google.android.videos/.tv.usecase.tvinput.playback.TvInputService: info: TvInputInfo{id=com.google.android.videos/.tv.usecase.tvinput.playback.TvInputService, pkg=com.google.android.videos, service=com.google.android.videos.tv.usecase.tvinput.playback.TvInputService}; state: 0
+    com.realtek.tv.passthrough/.avinput.AVTvInputService/HW50593792: info: TvInputInfo{id=com.realtek.tv.passthrough/.avinput.AVTvInputService/HW50593792, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.avinput.AVTvInputService}; state: 0
+    com.google.android.videos/com.google.android.apps.play.movies.tv.usecase.tvinput.playback.VideoPreviewInputService: info: TvInputInfo{id=com.google.android.videos/com.google.android.apps.play.movies.tv.usecase.tvinput.playback.VideoPreviewInputService, pkg=com.google.android.videos, service=com.google.android.apps.play.movies.tv.usecase.tvinput.playback.VideoPreviewInputService}; state: 0
+    com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519488: info: TvInputInfo{id=com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519488, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.hdmiinput.HDMITvInputService}; state: 1
+    com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519232: info: TvInputInfo{id=com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519232, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.hdmiinput.HDMITvInputService}; state: 1
+    tv.abema/.components.service.AbemaLiveTvInputService: info: TvInputInfo{id=tv.abema/.components.service.AbemaLiveTvInputService, pkg=tv.abema, service=tv.abema.components.service.AbemaLiveTvInputService}; state: 0
+  packageSet:
+    com.google.android.videos
+    com.realtek.tv.atv
+    tv.abema
+    com.realtek.dtv
+    com.realtek.tv.atsc
+    com.realtek.tv.isdb
+    com.realtek.tv.passthrough
+  clientStateMap: ITvInputClient -> ClientState
+  serviceStateMap: ComponentName -> ServiceState
+    ComponentInfo{com.realtek.tv.atsc/com.realtek.tv.atsc.AtscTvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@5a3ec16
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@7be6997
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@2092784
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.tv.passthrough/com.realtek.tv.passthrough.hdmiinput.HDMITvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@c083b6d
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@4eab3a2
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@bf60833
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.tv.atv/com.realtek.tv.atv.atvinput.AtvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@8b337f0
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@2fa2169
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@ae467ee
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.tv.passthrough/com.realtek.tv.passthrough.vgainput.VGATvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@afef48f
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@2abe31c
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@60a6b25
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.tv.passthrough/com.realtek.tv.passthrough.yppinput.YPPTvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@2b314fa
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@a004aab
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@4221508
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.tv.passthrough/com.realtek.tv.passthrough.dpinput.DPTvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@11b94a1
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@58d86c6
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@f76e687
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.tv.passthrough/com.realtek.tv.passthrough.avinput.AVTvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@34779b4
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@1bbd9dd
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@74b4952
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.dtv/com.realtek.dtv.tvinput.DTVTvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@2d16423
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@5bc7d20
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@62136d9
+      bound: true
+      reconnecting: false
+    ComponentInfo{com.realtek.tv.isdb/com.realtek.tv.isdb.IsdbTvInputService}: com.android.server.tv.TvInputManagerService$ServiceState@fb0a89e
+      sessionTokens:
+      service: android.media.tv.ITvInputService$Stub$Proxy@9cc1f7f
+      callback: com.android.server.tv.TvInputManagerService$ServiceCallback@8bc4b4c
+      bound: true
+      reconnecting: false
+  sessionStateMap: ITvInputSession -> SessionState
+  mCallbacks:
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@fe56795
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@c7ab0aa
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@f8d349b
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@8d038
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@681e811
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@82b2d76
+    android.media.tv.TvInputManager$2@84ef3e6
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@1807f77
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@796b7e4
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@58bf44d
+    android.media.tv.ITvInputManagerCallback$Stub$Proxy@194ab02
+  mainSessionToken: null
+TvInputHardwareManager Info:
+  mConnections: deviceId -> Connection
+    17367040: Connection{ mHardwareInfo: TvInputHardwareInfo {id=17367040, type=1, audio_type=0, audio_addr=null, cable_connection_status=0}, mInfo: null, mCallback: null, mConfigs: [TvStreamConfig {mStreamId=0;mType=1;mGeneration=10}], mCallingUid: null, mResolvedUserId: null, mResourceClientProfile: null }
+    33619968: Connection{ mHardwareInfo: TvInputHardwareInfo {id=33619968, type=2, audio_type=-2147467264, audio_addr=, cable_connection_status=0}, mInfo: TvInputInfo{id=com.realtek.tv.atv/.atvinput.AtvInputService/HW33619968, pkg=com.realtek.tv.atv, service=com.realtek.tv.atv.atvinput.AtvInputService}, mCallback: android.media.tv.ITvInputHardwareCallback$Stub$Proxy@df39c13, mConfigs: [TvStreamConfig {mStreamId=0;mType=1;mGeneration=10}], mCallingUid: 1000, mResolvedUserId: 0, mResourceClientProfile: ResourceClientProfile {tvInputSessionId=null, useCase=400} }
+    50593792: Connection{ mHardwareInfo: TvInputHardwareInfo {id=50593792, type=3, audio_type=-2147450880, audio_addr=, cable_connection_status=0}, mInfo: TvInputInfo{id=com.realtek.tv.passthrough/.avinput.AVTvInputService/HW50593792, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.avinput.AVTvInputService}, mCallback: android.media.tv.ITvInputHardwareCallback$Stub$Proxy@3f96e50, mConfigs: [TvStreamConfig {mStreamId=0;mType=1;mGeneration=10}], mCallingUid: 1000, mResolvedUserId: 0, mResourceClientProfile: ResourceClientProfile {tvInputSessionId=null, useCase=400} }
+    151519232: Connection{ mHardwareInfo: TvInputHardwareInfo {id=151519232, type=9, audio_type=-2147483616, audio_addr=, hdmi_port=0, cable_connection_status=0}, mInfo: TvInputInfo{id=com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519232, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.hdmiinput.HDMITvInputService}, mCallback: android.media.tv.ITvInputHardwareCallback$Stub$Proxy@2b08849, mConfigs: [], mCallingUid: 1000, mResolvedUserId: 0, mResourceClientProfile: ResourceClientProfile {tvInputSessionId=null, useCase=400} }
+    151519488: Connection{ mHardwareInfo: TvInputHardwareInfo {id=151519488, type=9, audio_type=-2147483616, audio_addr=, hdmi_port=1, cable_connection_status=0}, mInfo: TvInputInfo{id=com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519488, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.hdmiinput.HDMITvInputService}, mCallback: android.media.tv.ITvInputHardwareCallback$Stub$Proxy@26754e, mConfigs: [], mCallingUid: 1000, mResolvedUserId: 0, mResourceClientProfile: ResourceClientProfile {tvInputSessionId=null, useCase=400} }
+  mHardwareList:
+    TvInputHardwareInfo {id=17367040, type=1, audio_type=0, audio_addr=null, cable_connection_status=0}
+    TvInputHardwareInfo {id=33619968, type=2, audio_type=-2147467264, audio_addr=, cable_connection_status=0}
+    TvInputHardwareInfo {id=50593792, type=3, audio_type=-2147450880, audio_addr=, cable_connection_status=0}
+    TvInputHardwareInfo {id=151519232, type=9, audio_type=-2147483616, audio_addr=, hdmi_port=0, cable_connection_status=0}
+    TvInputHardwareInfo {id=151519488, type=9, audio_type=-2147483616, audio_addr=, hdmi_port=1, cable_connection_status=0}
+  mHdmiDeviceList:
+  mHardwareInputIdMap: deviceId -> inputId
+    33619968: com.realtek.tv.atv/.atvinput.AtvInputService/HW33619968
+    50593792: com.realtek.tv.passthrough/.avinput.AVTvInputService/HW50593792
+    151519232: com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519232
+    151519488: com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519488
+  mHdmiInputIdMap: id -> inputId
+  mInputMap: inputId -> inputInfo
+    com.realtek.tv.atv/.atvinput.AtvInputService/HW33619968: TvInputInfo{id=com.realtek.tv.atv/.atvinput.AtvInputService/HW33619968, pkg=com.realtek.tv.atv, service=com.realtek.tv.atv.atvinput.AtvInputService}
+    com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519232: TvInputInfo{id=com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519232, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.hdmiinput.HDMITvInputService}
+    com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519488: TvInputInfo{id=com.realtek.tv.passthrough/.hdmiinput.HDMITvInputService/HW151519488, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.hdmiinput.HDMITvInputService}
+    com.realtek.tv.passthrough/.avinput.AVTvInputService/HW50593792: TvInputInfo{id=com.realtek.tv.passthrough/.avinput.AVTvInputService/HW50593792, pkg=com.realtek.tv.passthrough, service=com.realtek.tv.passthrough.avinput.AVTvInputService}

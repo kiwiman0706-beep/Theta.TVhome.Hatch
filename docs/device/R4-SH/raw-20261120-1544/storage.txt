@@ -1,0 +1,5 @@
+total 8
+drwx--x---  4 shell    everybody   80 2026-08-14 16:15 .
+drwxr-xr-x 25 root     root      4096 2009-01-01 09:00 ..
+drwxrwx---  3 media_rw media_rw  4096 2026-08-14 16:17 emulated
+drwxr-xr-x  2 root     root        60 2026-11-19 10:03 self
