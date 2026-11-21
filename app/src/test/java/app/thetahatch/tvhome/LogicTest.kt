@@ -2,6 +2,7 @@ package app.thetahatch.tvhome
 
 import app.thetahatch.tvhome.data.Event
 import app.thetahatch.tvhome.data.Ics
+import app.thetahatch.tvhome.nas.Kind
 import app.thetahatch.tvhome.data.Place
 import app.thetahatch.tvhome.hub.ApkFacts
 import app.thetahatch.tvhome.hub.Catalog
@@ -144,5 +145,18 @@ class LogicTest {
         assertEquals("http://192.168.1.5:5000", n.normalize("192.168.1.5"))
         assertEquals("http://nas.ts.net:5001/x", n.normalize("nas.ts.net:5001/x/"))
         assertEquals("https://nas:5001", n.normalize("https://nas:5001"))
+    }
+
+    @Test fun nasKinds() {
+
+        fun d(n: String) = app.thetahatch.tvhome.nas.NasEntry("/v/$n", n, true, 0, 0)
+        fun f(n: String) = app.thetahatch.tvhome.nas.NasEntry("/v/$n", n, false, 1, 0)
+        assertEquals(listOf("⑧アニメ", "⑧映画"), Kind.VIDEO.shelves(listOf(d("⑧映画"), d("その他"), d("⑧アニメ"), d("#recycle"))).map { it.name })
+        assertEquals("映画", Kind.VIDEO.shelfName("⑧映画"))
+        assertTrue(Kind.VIDEO.isItem(f("君の名は。 (2016).mkv")))
+        assertFalse(Kind.VIDEO.isItem(f("poster.jpg")))
+        assertTrue(Kind.BOOK.isItem(f("第01巻.pdf")))
+        // 写真は新しい年が先
+        assertEquals(listOf("2025", "2024"), Kind.PHOTO.sort(listOf(d("2024"), d("2025"), d("_未整理"))).map { it.name })
     }
 }

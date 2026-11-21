@@ -29,7 +29,7 @@ import app.thetahatch.tvhome.ui.KidsLayout
 import app.thetahatch.tvhome.ui.HomeScreen
 import app.thetahatch.tvhome.ui.LocalPalette
 import app.thetahatch.tvhome.ui.MenuOverlay
-import app.thetahatch.tvhome.ui.MusicScreen
+import app.thetahatch.tvhome.ui.NasScreen
 import app.thetahatch.tvhome.ui.PinPad
 import app.thetahatch.tvhome.ui.SettingsScreen
 import app.thetahatch.tvhome.ui.TileMenu
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                         "settings" -> SettingsScreen(app, go) { title, done -> pinAsk = title to done }
                         "updates" -> UpdatesScreen(app)
                         "apps" -> AllAppsScreen(app, { menu = it }, guarded)
-                        "music" -> { val mp by app.state.musicPath.collectAsState(); MusicScreen(app, mp) { screen.value = "home" } }
+                        "nas" -> { val (k, path) = app.state.nasOpen.collectAsState().value; NasScreen(app, k, path) }
                         else -> when (app.store.layout.also { tick }) {
                             "bar" -> CrossBarLayout(app, homeFocus, go, { menu = it }, guarded)
                             "simple" -> HomeScreen(app, homeFocus, go, { menu = it }, guarded)

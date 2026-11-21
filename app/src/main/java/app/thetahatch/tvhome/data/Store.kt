@@ -26,10 +26,13 @@ class Store(context: Context) {
         get() = prefs.getString("kids.theme", "usagi") ?: "usagi"
         set(v) = prefs.edit().putString("kids.theme", v).apply()
 
-    /** おんがく：さいごに開いたフォルダ（つづきから）。 */
-    var musicLast: String
-        get() = prefs.getString("music.last", "") ?: ""
-        set(v) = prefs.edit().putString("music.last", v).apply()
+    /** NAS：種類ごとに、さいごに開いたフォルダ（つづきから）。 */
+    fun last(kind: String): String = prefs.getString("nas.last.$kind", null) ?: if (kind == "music") prefs.getString("music.last", "") ?: "" else ""
+    fun setLast(kind: String, path: String) = prefs.edit().putString("nas.last.$kind", path).apply()
+
+    /** 見たところ（えいがは秒、ほんはページ）。ファイルのパスごと。 */
+    fun mark(path: String): Double = prefs.getFloat("nas.mark." + path.hashCode(), 0f).toDouble()
+    fun setMark(path: String, v: Double) = prefs.edit().apply { if (v <= 0) remove("nas.mark." + path.hashCode()) else putFloat("nas.mark." + path.hashCode(), v.toFloat()) }.apply()
 
     /** 予定を Google カレンダーの API で読む（せってい → Google カレンダーにつなぐ）。 */
     var googleCalendar: Boolean

@@ -11,11 +11,12 @@ Theta Hatch シリーズの 1 つ（シリーズの決まりは [Theta.Hatch.Ser
 | --- | --- |
 | ![キッズ](docs/screenshots/kids-usagi.png) | ![クロスバー](docs/screenshots/bar-braun.png) |
 
-## できること（0.5.0）
+## できること（0.8.0）
 
 | | |
 | --- | --- |
 | ホームの形 | クロスバー（はじめはこれ。上端に横の帯、下に 2 週間の帯→カレンダーで 4 週、左上に再生中、右上に時計・てんき・ぜんぶのアプリ・ネット。操作しないと消える。デザインは mock/home.html）・キッズ（キッズホーム風、いろ 7 種）・たな |
+| NAS（内蔵） | えいが（mpv）・おんがく・しゃしん・ほん（PDF・漫画）。File Station でつなぐ、家の外は Tailscale（docs/SIBLINGS.md） |
 | 時計・天気・予定 | 天気は Open-Meteo（キー不要）。予定は Google カレンダーの「iCal 形式の非公開 URL」（秘密として暗号化して保存） |
 | テレビの入口 | テレビ・地デジ・BS・録画・HDMI。HDMI は Android TV の決まった方法で切り替え。地デジ・BS・録画は機種ごとに違うので ADB で設定（[docs/ADB.md](docs/ADB.md)） |
 | アプリ | すきなアプリ（★）を大きく、ほかは下に。長押しかメニューボタンで ★・並べ替え・かくす |

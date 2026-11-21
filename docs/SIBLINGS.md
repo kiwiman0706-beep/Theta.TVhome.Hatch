@@ -12,8 +12,9 @@
 | | 元のアプリ | TVhome での作り | 版 |
 | --- | --- | --- | --- |
 | おんがく | Music.Hatch（WebDAV か Audio Station、Flutter・just_audio） | File Station でフォルダをたどる、ExoPlayer（media3）で裏で再生 | 0.7.0〜 |
-| えいが | Movie.Hatch（File Station か WebDAV、mpv で何でも再生、`.nfo`・ポスター） | mpv を内蔵（DTS・ARIB 字幕・二か国語の .ts まで）。棚・続きから | これから |
-| ほん | Book.Hatch（File Station、EPUB・PDF・CBZ・CBR・M4B） | PDF・漫画（画像の束）をページ送り。EPUB はあと | これから |
+| えいが | Movie.Hatch（File Station か WebDAV、mpv で何でも再生、`.nfo`・ポスター） | mpv（libmpv 1.0.0）を内蔵。棚・フォルダ・続きから（見た秒）。`.nfo`・ポスター・話数の読み取りはあと | 0.8.0〜 |
+| ほん | Book.Hatch（File Station、EPUB・PDF・CBZ・CBR・M4B） | PDF・CBZ・ZIP をページ送り（落としてから読む）。読んだページ。EPUB・CBR・M4B はあと | 0.8.0〜 |
+| しゃしん | Photo.Hatch（写真の整理・XMP）、NAS の `photo` | 年・イベントのフォルダをたどってスライドショー。ホームの背景の写真はあと | 0.8.0〜 |
 
 ## 取り込みの表
 

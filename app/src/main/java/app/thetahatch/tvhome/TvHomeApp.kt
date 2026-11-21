@@ -27,8 +27,8 @@ class TvHomeApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         val proc = if (android.os.Build.VERSION.SDK_INT >= 28) Application.getProcessName() else ""
-        // 再生のプロセス（":player"）は、落ちてもホームのレスキューに数えない。本体の準備もしない
-        if (proc.endsWith(":player")) return
+        // 再生・表示のプロセス（":player"・":video"・":viewer"）は、落ちてもホームのレスキューに数えない。本体の準備もしない
+        if (proc.endsWith(":player") || proc.endsWith(":video") || proc.endsWith(":viewer")) return
         app.thetahatch.tvhome.rescue.Rescue.install(this)
         // レスキューのプロセスでは本体の準備をしない（本体が壊れていても開けるように）
         if (android.os.Build.VERSION.SDK_INT >= 28 && Application.getProcessName().endsWith(":rescue")) return

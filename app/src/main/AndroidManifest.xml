@@ -97,6 +97,26 @@
             </intent-filter>
         </service>
 
+        <!-- えいが（mpv）・ほん・しゃしん：ホームと別のプロセス。落ちてもホームは落ちない -->
+        <activity
+            android:name=".video.VideoActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="false"
+            android:process=":video"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
+        <activity
+            android:name=".viewer.BookActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="false"
+            android:process=":viewer"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
+        <activity
+            android:name=".viewer.PhotoActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|density"
+            android:exported="false"
+            android:process=":viewer"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
+
         <!-- いま再生中のもの（メディアセッション）を読むための入口。許可は ADB（docs/ADB.md） -->
         <service
             android:name=".media.MediaListener"

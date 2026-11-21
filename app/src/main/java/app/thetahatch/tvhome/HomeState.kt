@@ -9,8 +9,10 @@ import app.thetahatch.tvhome.data.AppItem
 import app.thetahatch.tvhome.music.Music
 import app.thetahatch.tvhome.music.MusicLib
 import app.thetahatch.tvhome.nas.Dsm
+import app.thetahatch.tvhome.nas.Kind
 import app.thetahatch.tvhome.nas.NasEntry
 import app.thetahatch.tvhome.nas.OtpRequired
+import app.thetahatch.tvhome.nas.Unreachable
 import app.thetahatch.tvhome.data.AppList
 import app.thetahatch.tvhome.data.Entries
 import app.thetahatch.tvhome.data.Entry
@@ -45,14 +47,14 @@ class HomeState(private val app: TvHomeApp) {
     val gcal by lazy { GCal(app) }
     val dsm by lazy { Dsm(store) }
     val music by lazy { Music(app, dsm) }
-    /** おんがくの棚（NAS の音楽のフォルダの直下）。 */
-    val musicShelves = MutableStateFlow<List<NasEntry>>(emptyList())
+    /** NAS の棚（種類ごと。共有フォルダの直下）。 */
+    val shelves: Map<Kind, MutableStateFlow<List<NasEntry>>> = Kind.entries.associateWith { MutableStateFlow(emptyList()) }
     /** NAS の困りごと（届かない・2 段階認証 など）。 */
     val nasError = MutableStateFlow<String?>(null)
     val nasNeedsOtp = MutableStateFlow(false)
-    /** おんがくの画面で開くフォルダ（空ならいちばん上）。 */
-    val musicPath = MutableStateFlow("")
-    private var shelvesAt = 0L
+    /** NAS の画面で開く種類とフォルダ（空ならいちばん上）。 */
+    val nasOpen = MutableStateFlow(Kind.MUSIC to "")
+    private val shelvesAt = HashMap<Kind, Long>()
     /** 設定が変わるたびに増える（画面の読み直し用）。 */
     private val _tick = MutableStateFlow(0)
     val tick: StateFlow<Int> = _tick
@@ -73,7 +75,7 @@ class HomeState(private val app: TvHomeApp) {
     /** 画面が出るたびに呼ぶ。30 分より古ければ読み直す。 */
     fun onShown() {
         reloadApps()
-        refreshMusicShelves()
+        refreshShelves()
         refreshWeather()
         refreshCalendar()
         // セーフモード、または最近落ちた・固まったときは、自動の更新をしない（壊れた版を重ねて入れないため）
@@ -128,19 +130,24 @@ class HomeState(private val app: TvHomeApp) {
         }
     }
 
-    /** 音楽の共有フォルダ（既定 /music）。 */
-    val musicRoot get() = store.get("nas.music")?.ifBlank { null } ?: "/music"
+    /** 種類ごとの共有フォルダ（せってい →「NAS」。既定 /music・/video・/book・/photo）。 */
+    fun root(k: Kind) = store.get(k.rootKey)?.ifBlank { null } ?: k.defaultRoot
 
-    fun refreshMusicShelves(force: Boolean = false) {
+    fun refreshShelves(force: Boolean = false) {
         if (app.safeMode || !dsm.configured) return
-        if (!force && System.currentTimeMillis() - shelvesAt < 30 * 60_000L && musicShelves.value.isNotEmpty()) return
-        shelvesAt = System.currentTimeMillis()
-        app.scope.launch {
-            runCatching { withContext(Dispatchers.IO) { MusicLib.shelves(dsm.list(musicRoot)) } }
-                .onSuccess { musicShelves.value = it; nasError.value = null; nasNeedsOtp.value = false }
-                .onFailure { e -> shelvesAt = 0; nasProblem(e) }
+        for (k in Kind.entries) {
+            val flow = shelves.getValue(k)
+            if (!force && System.currentTimeMillis() - (shelvesAt[k] ?: 0) < 30 * 60_000L && flow.value.isNotEmpty()) continue
+            shelvesAt[k] = System.currentTimeMillis()
+            app.scope.launch {
+                runCatching { withContext(Dispatchers.IO) { k.shelves(dsm.list(root(k))) } }
+                    .onSuccess { flow.value = it; nasError.value = null; nasNeedsOtp.value = false }
+                    .onFailure { e -> shelvesAt[k] = 0; if (k == Kind.MUSIC || e is OtpRequired || e is Unreachable) nasProblem(e) }
+            }
         }
     }
+
+    fun openNas(k: Kind, path: String) { nasOpen.value = k to path }
 
     fun nasProblem(e: Throwable) {
         nasNeedsOtp.value = e is OtpRequired

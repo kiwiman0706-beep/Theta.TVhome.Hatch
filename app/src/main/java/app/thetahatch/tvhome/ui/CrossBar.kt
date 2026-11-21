@@ -69,6 +69,7 @@ import app.thetahatch.tvhome.data.Weather
 import app.thetahatch.tvhome.hub.Catalog
 import app.thetahatch.tvhome.hub.UpdateHub
 import app.thetahatch.tvhome.media.NowPlaying
+import app.thetahatch.tvhome.nas.Kind
 import app.thetahatch.tvhome.media.Playing
 import kotlinx.coroutines.delay
 import java.time.Instant
@@ -113,10 +114,16 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
     val hub by UpdateHub.status.collectAsState()
     val net by NetStatus.state.collectAsState()
     val playing by NowPlaying.state.collectAsState()
-    val shelves by state.musicShelves.collectAsState()
+    val sv = state.shelves.getValue(Kind.VIDEO).collectAsState().value
+    val sm = state.shelves.getValue(Kind.MUSIC).collectAsState().value
+    val sp = state.shelves.getValue(Kind.PHOTO).collectAsState().value
+    val sb = state.shelves.getValue(Kind.BOOK).collectAsState().value
     val p = LocalPalette.current
     val updates = Catalog.android.count { UpdateHub.hasNewer(it, hub[it.id] ?: return@count false) }
-    val base = remember(tick, apps, entries, updates, shelves) { buildCategories(app, apps, entries, updates, go, menu, guarded, withAll = false, music = shelves) }
+    val base = remember(tick, apps, entries, updates, sv, sm, sp, sb) {
+        buildCategories(app, apps, entries, updates, go, menu, guarded, withAll = false,
+            nas = mapOf(Kind.VIDEO to sv, Kind.MUSIC to sm, Kind.PHOTO to sp, Kind.BOOK to sb))
+    }
     val cats = remember(base) { listOf(Category("cal", "カレンダー", "📅", emptyList())) + base.map { if (it.key == "fav") it.copy(label = "アプリ", icon = "⭐") else it } }
     val colors = listOf(p.accent2, p.accent, p.accent3, p.widget, p.launch)
 

@@ -1,5 +1,6 @@
 package app.thetahatch.tvhome.ui
 
+import app.thetahatch.tvhome.nas.Kind
 import app.thetahatch.tvhome.rescue.Rescue
 import app.thetahatch.tvhome.rescue.RescueActivity
 import android.content.Intent
@@ -95,7 +96,7 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
     textAsk?.let { (title, key, secret) ->
         TextPrompt(title, if (secret) "" else s.get(key).orEmpty(), secret, { v ->
             if (secret) s.setSecret(key, v.trim()) else s.put(key, v.trim())
-            if (key.startsWith("nas.")) { app.state.dsm.reset(); app.state.refreshMusicShelves(force = true) }
+            if (key.startsWith("nas.")) { app.state.dsm.reset(); app.state.refreshShelves(force = true) }
             textAsk = null; changed()
         }, { textAsk = null })
         return
@@ -156,18 +157,20 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
         item {
             val err by app.state.nasError.collectAsState()
             val otp by app.state.nasNeedsOtp.collectAsState()
-            val shelvesNow by app.state.musicShelves.collectAsState()
+            val shelvesNow by app.state.shelves.getValue(Kind.MUSIC).collectAsState()
             RowButton("接続を確かめる", if (shelvesNow.isNotEmpty()) "OK（棚 ${shelvesNow.size}）" else if (app.state.dsm.configured) "未確認" else "未設定",
-                onClick = { app.state.dsm.reset(); app.state.refreshMusicShelves(force = true) },
+                onClick = { app.state.dsm.reset(); app.state.refreshShelves(force = true) },
                 note = err ?: "DSM の File Station でつなぎます（Theta Movie Hatch・Book Hatch と同じ）。家の外は Tailscale")
             if (otp) RowButton("2 段階認証の確認コードを入れる", null, onClick = {
-                askPin("確認コード（6 けた）") { code -> app.state.dsm.setOtp(code); app.state.refreshMusicShelves(force = true) }
+                askPin("確認コード（6 けた）") { code -> app.state.dsm.setOtp(code); app.state.refreshShelves(force = true) }
             }, note = "1 回入れれば、次から要りません")
         }
         item { RowButton("NAS の URL", s.get("nas.url")?.ifBlank { null } ?: "未設定", onClick = { textAsk = Triple("NAS の URL（例 http://nas.tailXXXX.ts.net:5000 か 192.168.x.x）", "nas.url", false) }) }
         item { RowButton("ユーザー名", s.get("nas.user")?.ifBlank { null } ?: "未設定", onClick = { textAsk = Triple("NAS のユーザー名", "nas.user", false) }) }
         item { RowButton("パスワード", if (s.hasSecret("nas.password")) "設定済み" else "未設定", onClick = { textAsk = Triple("NAS のパスワード", "nas.password", true) }, note = "テレビの中で暗号化して持ちます。ADB の SET_SECRET でも入れられます") }
-        item { RowButton("音楽のフォルダ", app.state.musicRoot, onClick = { textAsk = Triple("音楽の共有フォルダ（例 /music）", "nas.music", false) }) }
+        items(Kind.entries.toList(), key = { "root-" + it.key }) { k ->
+            RowButton("${k.label}の フォルダ", app.state.root(k), onClick = { textAsk = Triple("${k.label}の 共有フォルダ（例 ${k.defaultRoot}）", k.rootKey, false) })
+        }
 
         item { SectionTitle("カレンダー") }
         item {

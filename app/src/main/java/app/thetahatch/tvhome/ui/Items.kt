@@ -2,7 +2,7 @@ package app.thetahatch.tvhome.ui
 
 import app.thetahatch.tvhome.TvHomeApp
 import app.thetahatch.tvhome.data.AppItem
-import app.thetahatch.tvhome.music.MusicLib
+import app.thetahatch.tvhome.nas.Kind
 import app.thetahatch.tvhome.nas.NasEntry
 import app.thetahatch.tvhome.data.Entry
 import app.thetahatch.tvhome.data.Event
@@ -38,8 +38,8 @@ fun buildCategories(
     guarded: (() -> Unit) -> Unit,
     /** false：ぜんぶのアプリは出さない（クロスバーは右上の「ぜんぶのアプリ」から） */
     withAll: Boolean = true,
-    /** おんがくの棚（NAS）。空でも NAS の設定があれば「おんがく」を出す */
-    music: List<NasEntry> = emptyList(),
+    /** NAS の棚（種類ごと）。空でも出す（NAS が未設定なら「せっていする」） */
+    nas: Map<Kind, List<NasEntry>> = emptyMap(),
 ): List<Category> {
     val s = app.store
     val hidden = s.hidden
@@ -59,18 +59,18 @@ fun buildCategories(
         add(Item("updates", "こうしん", "⟳", badge = updates.takeIf { it > 0 }?.toString(), sub = if (updates > 0) "あたらしい版が $updates こ" else null, onClick = { guarded { go("updates") } }))
         add(Item("settings", "せってい", "⚙", onClick = { guarded { go("settings") } }))
     }
-    val musicItems = buildList {
-        if (!app.state.dsm.configured) add(Item("nas", "NAS を せっていする", "⚙", sub = "NAS の音楽・動画・本を見るには", onClick = { guarded { go("settings") } }))
+    fun nasItems(k: Kind, shelves: List<NasEntry>) = buildList {
+        if (!app.state.dsm.configured) add(Item("nas-" + k.key, "NAS を せっていする", "⚙", sub = "NAS の${k.label}を見るには", onClick = { guarded { go("settings") } }))
         else {
-            val last = s.musicLast
-            if (last.isNotBlank()) add(Item("music-last", "つづきから", "⏯", sub = MusicLib.shelfName(last.trimEnd('/').substringAfterLast('/')), onClick = { app.state.musicPath.value = last; go("music") }))
-            music.forEach { e -> add(Item("m:" + e.path, MusicLib.shelfName(e.name), "💿", onClick = { app.state.musicPath.value = e.path; go("music") })) }
-            add(Item("music-all", "ぜんぶの おんがく", "🎵", sub = app.state.musicRoot, onClick = { app.state.musicPath.value = ""; go("music") }))
+            val last = s.last(k.key)
+            if (last.isNotBlank()) add(Item(k.key + "-last", "つづきから", "⏯", sub = k.shelfName(last.trimEnd('/').substringAfterLast('/')), onClick = { app.state.openNas(k, last); go("nas") }))
+            shelves.forEach { e -> add(Item(k.key + ":" + e.path, k.shelfName(e.name), k.icon, onClick = { app.state.openNas(k, e.path); go("nas") })) }
+            add(Item(k.key + "-all", "ぜんぶの ${k.label}", k.icon, sub = app.state.root(k), onClick = { app.state.openNas(k, ""); go("nas") }))
         }
     }
     return buildList {
         add(Category("tv", "テレビ", "📺", tv))
-        add(Category("music", "おんがく", "🎵", musicItems))
+        for (k in listOf(Kind.VIDEO, Kind.MUSIC, Kind.PHOTO, Kind.BOOK)) add(Category(k.key, k.label, k.icon, nasItems(k, nas[k].orEmpty())))
         if (fav.isNotEmpty() || !kids) add(Category("fav", "すき", "⭐", fav))
         if (!kids && withAll) add(Category("apps", "アプリ", "▦", rest))
         add(Category("hatch", "せってい", "⚙", hatch))
