@@ -34,8 +34,9 @@
    - adb shell pm path <パッケージ> → adb pull <パス> <PC の作業フォルダ>（**リポジトリの外**のフォルダ）
    - jadx（無ければ入れて。Windows：winget install skylot.jadx、Mac：brew install jadx）か apktool で開き、AndroidManifest.xml の exported な activity・provider・receiver、録画の一覧や再生を開く Intent の action・extras のキー、provider の URI と列を探す
    - 見つけた Intent を adb shell am start ... で試す（録画 1 本を開けるか）
-6. 結果を docs/device/4T-C65DQ2.md の「録画」の節にまとめる：一覧の読み方（provider の URI・列・要る権限）、1 本を開く Intent（action・component・extras）、試した結果、TVhome でできそうか・できない理由
-7. コミットして push（main）。最後に短く報告して
+6. 一覧が読めたら、**番組ごとにまとめるのに使える情報**があるかを調べる（録画 5〜10 本ぶんの実例を、題名を含めて記録）：番組名・サブタイトル（話数・回）・放送局・放送日時・長さ・ジャンル・シリーズの ID（連続録画の予約の ID など）・見た／まだ・見たところ
+7. 結果を docs/device/4T-C65DQ2.md の「録画」の節にまとめる：一覧の読み方（provider の URI・列・要る権限）、6 の項目と実例、1 本を開く Intent（action・component・extras）、試した結果、TVhome でできそうか・できない理由
+8. コミットして push（main）。最後に短く報告して
 
 守ってほしいこと
 - 取り出した APK・jadx の出力・ソースは、リポジトリに入れない（公開のため。PC の別のフォルダに置き、終わったら消してよいか私に聞く）。docs に書くのは入口の名前と試した結果だけ
@@ -49,4 +50,7 @@
 ## 見つかったら（このクラウドのスレッドで）
 
 - 一覧が読める（provider か Intent）→ TVhome のクロスバーに「ろくが」の一覧を出し、決定で純正の再生画面を開く
+  - **番組ごとの仮想フォルダ**：シリーズの ID があればそれで、無ければ題名から話数・回・記号（`#12`・`第5話`・`（字）`・`[新]`・`[再]`・サブタイトルの「」など）を外した名前でまとめる。1 本だけの番組はフォルダにしない
+  - 並べ替え：題名順・新しい順・古い順・放送局順（メニューボタンで切り替え）。フォルダの中は放送日順
+  - まだ見ていない物に印（分かれば）
 - 一覧は読めないが、録画リストの画面を開く Intent はある → 今の「ろくが」の入口をそれにする（`entry.recordings`）
