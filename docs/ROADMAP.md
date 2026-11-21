@@ -19,4 +19,17 @@
 | 次 | **インターホンの知らせ**（dearis インターホンアプリ）：スマホの通知 → Pushbullet のリアルタイム配信を TVhome が受け、動画の上にも小さく重ねて 10 秒（操作は奪わない）。dearis の通知だけを選ぶ。あとで Home.Hatch（スマホ）→ Theta Link で直接に。玄関の Tapo の小窓とつなぐ | ○ 呼び出し中の消せない通知を Pushbullet が転送するかは未確認 |
 | 次 | **Google のメール・やること・れんらくさき**：Gmail（読む・返信・新しいメール）、Google ToDo（チェック）、連絡先（家族を顔写真で）。Home.Hatch と同じ Google の許可（このアプリ用の Android の OAuth クライアントを足す）。クロスバーはループ | ○ AQUOS で Google の許可画面が出るかは未確認 |
 
+## NAS の整理と、TVhome の対応（2026-11-21）
+
+NAS は最後には全部整理する（決まりは Theta.Hatch.Series の `spec/THETA_LIBRARY_SPEC.md`、作業はローカルの Claude：`docs/PROMPT_NAS_ORGANIZE.md`）。TVhome はその並べ方に合わせて読む。
+
+| 順 | NAS の整理 | TVhome でやること |
+| --- | --- | --- |
+| 1 | `music` | おんがく：タグを読む・お気に入り・整理の記録でお気に入りを付け替え（docs/SIBLINGS.md） |
+| 2 | `video`（8Tube） | えいが：作品・シーズン・話（名前の読み取り）・`.nfo`・ポスター・最近追加 |
+| 3 | `photo` | しゃしん：年・イベント・XMP（分類・★）、ホームの背景の写真 |
+| 4 | `book` | ほん：作者・シリーズ・巻、EPUB |
+| 5 | **ホーム（`homes/<ユーザー>`）** | 整理の決まりを先に決める（書類・家族の物・スマホのバックアップをどこに置くか）。TVhome に「ファイル」（書類を見る：PDF・画像・テキスト）を足す |
+| 6 | 残り全部 | 共有フォルダの一覧と役割を THETA_LIBRARY_SPEC §1 にそろえる |
+
 決めてほしいことは Theta.Hatch.Series の `progress/tvhome.md`。
