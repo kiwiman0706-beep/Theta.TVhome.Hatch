@@ -150,6 +150,13 @@ class Dsm(private val store: Store) {
             "&method=download&mode=open&path=" + URLEncoder.encode(path, "UTF-8") + "&_sid=" + sid
     }
 
+    /** 小さな絵（写真・ポスター・ジャケット）。NAS が作ってある縮小版（SYNO.FileStation.Thumb）。size：small・medium・large。 */
+    fun thumbUrl(path: String, size: String = "medium"): String {
+        ensureLogin()
+        return url("SYNO.FileStation.Thumb") + "?api=SYNO.FileStation.Thumb&version=${ver("SYNO.FileStation.Thumb", 2)}" +
+            "&method=get&size=$size&rotate_version=2&path=" + URLEncoder.encode(path, "UTF-8") + "&_sid=" + sid
+    }
+
     companion object {
         /** 「100.1.2.3」のように方式を省いたら DSM の既定（http, 5000）を補う。 */
         fun normalize(url: String): String {

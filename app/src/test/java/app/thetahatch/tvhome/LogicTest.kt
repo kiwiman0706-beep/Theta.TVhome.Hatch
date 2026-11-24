@@ -159,4 +159,22 @@ class LogicTest {
         // 写真は新しい年が先
         assertEquals(listOf("2025", "2024"), Kind.PHOTO.sort(listOf(d("2024"), d("2025"), d("_未整理"))).map { it.name })
     }
+
+    @Test fun namesAndIndex() {
+        val N = app.thetahatch.tvhome.nas.Names
+        assertEquals("きみのなは2016", N.norm("キミノナハ (２０１６)"))
+        assertEquals("君の名は。" to "2016", N.work("君の名は。 (2016)"))
+        assertEquals("3 話 サブタイトル", N.episode("〇〇 S01E03「サブタイトル」 [2019-04-21 TBS].ts"))
+        assertEquals("4/7 今回の内容", N.episode("〇〇の番組 2019-04-07「今回の内容」 [テレ朝].ts"))
+        assertEquals("シーズン 1", N.season("Season 01"))
+        assertEquals("2019 年", N.season("Season 2019"))
+        val I = app.thetahatch.tvhome.nas.Index
+        fun it(p: String, dir: Boolean, t: Long) = app.thetahatch.tvhome.nas.Index.Item(p, p.substringAfterLast('/'), dir, t)
+        val items = listOf(
+            it("/8Tube/▶アニメ/トトロ (1988)", true, 1), it("/8Tube/▶アニメ/トトロ (1988)/トトロ (1988).mkv", false, 5),
+            it("/8Tube/▶ドラマ/〇〇 (2019)/Season 01/〇〇 S01E01.ts", false, 9), it("/8Tube/▶ドラマ/〇〇 (2019)/Season 01/〇〇 S01E02.ts", false, 8),
+        )
+        assertEquals(listOf("/8Tube/▶ドラマ/〇〇 (2019)", "/8Tube/▶アニメ/トトロ (1988)"), I.recentOf(items, Kind.VIDEO).map { it.path })
+        assertEquals("/8Tube/▶アニメ/トトロ (1988)", I.searchOf(items, "ととろ").first().path)
+    }
 }

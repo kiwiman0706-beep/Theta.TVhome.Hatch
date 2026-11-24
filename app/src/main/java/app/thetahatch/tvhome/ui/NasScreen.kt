@@ -1,6 +1,5 @@
 package app.thetahatch.tvhome.ui
 
-import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,6 +28,14 @@ import app.thetahatch.tvhome.TvHomeApp
 import app.thetahatch.tvhome.data.NetStatus
 import app.thetahatch.tvhome.music.MusicLib
 import app.thetahatch.tvhome.nas.Kind
+import app.thetahatch.tvhome.nas.Names
+import app.thetahatch.tvhome.viewer.Pictures
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.graphics.asImageBitmap
+import android.content.Intent
 import app.thetahatch.tvhome.video.VideoActivity
 import app.thetahatch.tvhome.viewer.BookActivity
 import app.thetahatch.tvhome.viewer.PhotoActivity
@@ -40,27 +47,31 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * NAS のライブラリ（おんがく・えいが・ほん・しゃしん）をフォルダでたどる。決定でフォルダの中へ、戻るで 1 つ上。
- * - おんがく：そこから裏で再生（左上に曲名）
- * - えいが：mpv で再生（別プロセス）。見たところを覚えて、次は続きから
- * - ほん：PDF・漫画をページ送り（別プロセス）。読んだページを覚える
- * - しゃしん：フォルダの写真をスライドショー（別プロセス）
+ * NAS のライブラリ（えいが・おんがく・しゃしん・ほん）の一覧の画面。
+ * - たどる：決定でフォルダの中へ、戻るで 1 つ上。えいが・おんがく・しゃしんは絵の並び（ポスター・ジャケット・写真）
+ * - さいきん ついか：索引の新しい順（えいがは作品、ほかはフォルダ）
+ * - さがす：名前で（もじ・こえ）。索引から
+ * 開くと：おんがくは裏で再生、えいがは mpv（続きから）、ほんはページ送り（読んだページ）、しゃしんはスライドショー
  */
 @Composable
-fun NasScreen(app: TvHomeApp, kind: Kind, startPath: String) {
+fun NasScreen(app: TvHomeApp, view: app.thetahatch.tvhome.HomeState.NasView) {
     val st = app.state
+    val kind = view.kind
     val p = LocalPalette.current
     val scope = rememberCoroutineScope()
     val root = st.root(kind)
-    var stack by remember(kind, startPath) { mutableStateOf(listOf(startPath.ifBlank { root })) }
+    var stack by remember(view) { mutableStateOf(if (view.mode == "browse") listOf(view.path.ifBlank { root }) else emptyList()) }
+    var mode by remember(view) { mutableStateOf(view.mode) }
+    var query by remember(view) { mutableStateOf(view.query) }
     var entries by remember { mutableStateOf<List<NasEntry>?>(null) }
     var error by remember { mutableStateOf<Throwable?>(null) }
     var tick by remember { mutableStateOf(0) }
+    var asking by remember { mutableStateOf(false) }
+    val indexing by st.indexing.collectAsState()
     val first = remember { FocusRequester() }
-    val path = stack.last()
     val ctx = androidx.compose.ui.platform.LocalContext.current
+    val path = stack.lastOrNull()
 
-    // えいが・ほんから戻ったら、見たところを覚える
     val viewer = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
         val d = r.data ?: return@rememberLauncherForActivityResult
         val fp = d.getStringExtra("path") ?: return@rememberLauncherForActivityResult
@@ -68,29 +79,61 @@ fun NasScreen(app: TvHomeApp, kind: Kind, startPath: String) {
         if (d.hasExtra(BookActivity.EXTRA_PAGE)) app.store.setMark(fp, d.getIntExtra(BookActivity.EXTRA_PAGE, 0).toDouble())
         tick++
     }
+    // こえで さがす（テレビに音声入力があれば）
+    val voiceIntent = remember { Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH).putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL, android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM).putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, "ja-JP") }
+    val canVoice = remember { ctx.packageManager.resolveActivity(voiceIntent, 0) != null }
+    val voice = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
+        r.data?.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let { query = it; mode = "search"; stack = emptyList() }
+    }
 
-    LaunchedEffect(path) {
+    LaunchedEffect(path, tick) {
+        if (path == null) return@LaunchedEffect
         entries = null; error = null
         runCatching { withContext(Dispatchers.IO) { st.dsm.list(path) } }
             .onSuccess { entries = it; delay(100); runCatching { first.requestFocus() } }
             .onFailure { error = it; st.nasProblem(it) }
     }
-    androidx.activity.compose.BackHandler(enabled = stack.size > 1) { stack = stack.dropLast(1) }
+    // さいきん・さがす：索引を読む（古ければ裏で作り直す）
+    var indexVersion by remember { mutableStateOf(0) }
+    LaunchedEffect(mode, kind) { if (mode != "browse") st.ensureIndex(kind) { indexVersion++ } }
+    LaunchedEffect(mode, query, indexVersion) { if (mode != "browse") { delay(150); runCatching { first.requestFocus() } } }
+    LaunchedEffect(mode) { if (mode == "search" && query.isBlank()) asking = true }
+
+    androidx.activity.compose.BackHandler(enabled = stack.size > 1 || (stack.isNotEmpty() && mode != "browse")) {
+        stack = stack.dropLast(1)
+    }
+
+    if (asking) {
+        TextPrompt("${kind.label}を さがす（なまえ）", query, false, { q -> query = q.trim(); asking = false; stack = emptyList(); mode = "search" }, { asking = false })
+        return
+    }
 
     val all = entries.orEmpty()
-    val list = kind.sort(all)
+    val list = if (path != null) kind.sort(all) else {
+        val ix = st.indexes.getValue(kind)
+        val found = if (mode == "recent") ix.recent() else ix.search(query)
+        @Suppress("UNUSED_EXPRESSION") indexVersion
+        found.map { NasEntry(it.path, it.name, it.dir, 0, it.mtime) }
+    }
     val items = list.filter { !it.dir }
-    val name = if (path == root) kind.label else kind.shelfName(path.trimEnd('/').substringAfterLast('/'))
+    val title = when {
+        path == null && mode == "recent" -> "さいきん ついか"
+        path == null -> "さがす：$query"
+        path == root -> kind.label
+        else -> label(kind, path.trimEnd('/').substringAfterLast('/'), true)
+    }
 
     fun open(e: NasEntry) {
-        app.store.setLast(kind.key, path)
+        val dir = e.path.substringBeforeLast('/')
+        val siblings = if (path != null) items else listOf(e)
+        app.store.setLast(kind.key, dir)
         scope.launch {
             runCatching {
                 when (kind) {
-                    Kind.MUSIC -> st.music.playFolder(path, name, items, items.indexOf(e), MusicLib.cover(all))
+                    Kind.MUSIC -> st.music.playFolder(dir, label(kind, dir.substringAfterLast('/'), true), siblings, siblings.indexOf(e).coerceAtLeast(0), if (path != null) MusicLib.cover(all) else null)
                     Kind.VIDEO -> {
                         val url = withContext(Dispatchers.IO) { st.dsm.downloadUrl(e.path) }
-                        viewer.launch(Intent(ctx, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_URL, url).putExtra(VideoActivity.EXTRA_TITLE, kind.title(e.name))
+                        viewer.launch(Intent(ctx, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_URL, url).putExtra(VideoActivity.EXTRA_TITLE, label(kind, e.name, false))
                             .putExtra(VideoActivity.EXTRA_PATH, e.path).putExtra(VideoActivity.EXTRA_START, app.store.mark(e.path)))
                     }
                     Kind.BOOK -> {
@@ -99,46 +142,118 @@ fun NasScreen(app: TvHomeApp, kind: Kind, startPath: String) {
                             .putExtra(BookActivity.EXTRA_PATH, e.path).putExtra(BookActivity.EXTRA_PAGE, app.store.mark(e.path).toInt()))
                     }
                     Kind.PHOTO -> {
-                        val urls = withContext(Dispatchers.IO) { items.map { st.dsm.downloadUrl(it.path) } }
+                        val urls = withContext(Dispatchers.IO) { siblings.map { st.dsm.downloadUrl(it.path) } }
                         ctx.startActivity(Intent(ctx, PhotoActivity::class.java).putStringArrayListExtra(PhotoActivity.EXTRA_URLS, ArrayList(urls))
-                            .putStringArrayListExtra(PhotoActivity.EXTRA_NAMES, ArrayList(items.map { it.name })).putExtra(PhotoActivity.EXTRA_START, items.indexOf(e).coerceAtLeast(0)))
+                            .putStringArrayListExtra(PhotoActivity.EXTRA_NAMES, ArrayList(siblings.map { it.name })).putExtra(PhotoActivity.EXTRA_START, siblings.indexOf(e).coerceAtLeast(0)))
                     }
                 }
             }.onFailure { app.toast("ひらけません：${it.message}"); st.nasProblem(it) }
         }
     }
+    fun enter(e: NasEntry) { if (e.dir) stack = stack + e.path else open(e) }
 
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 96.dp, vertical = 27.dp)) {
-        item {
-            Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(bottom = 12.dp)) {
-                T(kind.icon, size = 34.sp)
-                Spacer(Modifier.width(12.dp))
-                T(name, size = 34.sp, font = headFont(), weight = FontWeight.Light)
+    val tiles = kind != Kind.BOOK
+    val (tw, th) = when (kind) { Kind.VIDEO -> 132.dp to 196.dp; Kind.MUSIC -> 150.dp to 186.dp; else -> 176.dp to 150.dp }
+    androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+        if (tiles) androidx.compose.foundation.lazy.grid.GridCells.Adaptive(tw) else androidx.compose.foundation.lazy.grid.GridCells.Fixed(1),
+        Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 64.dp, vertical = 24.dp),
+        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(if (tiles) 16.dp else 0.dp),
+    ) {
+        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
+                T(kind.icon, size = 30.sp)
+                Spacer(Modifier.width(10.dp))
+                T(title, Modifier.weight(1f, fill = false), size = 30.sp, font = headFont(), weight = FontWeight.Light)
                 Spacer(Modifier.width(16.dp))
-                T(path, size = 14.sp, color = p.muted, font = Mono)
+                path?.let { T(it, size = 12.sp, color = p.muted, font = Mono) }
+                indexing[kind]?.let { n -> Spacer(Modifier.width(12.dp)); T("しらべています… $n こ", size = 14.sp, color = p.accent) }
             }
         }
-        error?.let { e -> item { NasTrouble(app, e) { stack = stack.toList() } } }
-        if (entries == null && error == null) item { T("よみこみ中…", size = 20.sp, color = p.muted) }
-        if (items.isNotEmpty() && kind == Kind.MUSIC) {
-            item { RowButton("▶ ぜんぶ さいせい（${items.size} きょく）", null, focusRequester = first, onClick = { open(items.first()) }) }
-            item { RowButton("⏯ いちじていし／さいかい", null, onClick = { scope.launch { runCatching { st.music.toggle() } } }) }
+        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+            Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+                Chip("🔍 さがす") { asking = true }
+                if (canVoice) Chip("🎤 こえで") { runCatching { voice.launch(voiceIntent) } }
+                Chip("🆕 さいきん") { stack = emptyList(); mode = "recent" }
+                if (mode != "browse" || stack.size > 1) Chip("📁 ぜんぶ") { mode = "browse"; stack = listOf(root) }
+                if (mode != "browse") Chip("⟳ しらべなおす") { st.ensureIndex(kind, force = true) { indexVersion++ } }
+                if (kind == Kind.MUSIC && items.isNotEmpty() && path != null) Chip("▶ ぜんぶ さいせい") { open(items.first()) }
+                if (kind == Kind.MUSIC) Chip("⏯") { scope.launch { runCatching { st.music.toggle() } } }
+                if (kind == Kind.PHOTO && items.isNotEmpty() && path != null) Chip("▶ スライドショー") { open(items.first()) }
+            }
         }
-        if (items.isNotEmpty() && kind == Kind.PHOTO) item { RowButton("▶ スライドショー（${items.size} まい）", null, focusRequester = first, onClick = { open(items.first()) }) }
+        error?.let { e -> item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) { NasTrouble(app, e) { tick++ } } }
+        if (path != null && entries == null && error == null) item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) { T("よみこみ中…", size = 18.sp, color = p.muted) }
+        if (path == null && list.isEmpty()) item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+            T(if (indexing[kind] != null) "しらべおわるまで まってね" else if (mode == "search") "みつかりません" else "まだ ありません", size = 18.sp, color = p.muted)
+        }
         itemsIndexed(list, key = { _, it -> it.path + tick }) { i, e ->
-            val fr = if ((kind == Kind.VIDEO || kind == Kind.BOOK || items.isEmpty()) && i == 0) first else null
-            if (e.dir) RowButton("📁  " + kind.shelfName(e.name), null, focusRequester = fr, onClick = { stack = stack + e.path })
-            else {
-                val mark = app.store.mark(e.path)
-                val sub = when {
-                    kind == Kind.VIDEO && mark > 0 -> "つづきから %d:%02d".format(mark.toInt() / 60, mark.toInt() % 60)
-                    kind == Kind.BOOK && mark > 0 -> "${mark.toInt() + 1} ページから"
-                    else -> e.name.substringAfterLast('.').uppercase()
-                }
-                RowButton(ITEM_ICON.getValue(kind) + "  " + kind.title(e.name), sub, focusRequester = fr, onClick = { open(e) })
+            val fr = if (i == 0) first else null
+            val mark = if (e.dir) 0.0 else app.store.mark(e.path)
+            val sub = when {
+                kind == Kind.VIDEO && mark > 0 -> "つづきから %d:%02d".format(mark.toInt() / 60, mark.toInt() % 60)
+                kind == Kind.BOOK && mark > 0 -> "${mark.toInt() + 1} ページから"
+                path == null -> e.path.substringBeforeLast('/').substringAfterLast('/').let { kind.shelfName(it) }
+                kind == Kind.VIDEO && e.dir -> Names.work(e.name).second
+                else -> null
+            }
+            if (tiles) NasTile(app, kind, e, label(kind, e.name, e.dir), sub, tw, th, fr) { enter(e) }
+            else RowButton((if (e.dir) "📁  " else "📖  ") + label(kind, e.name, e.dir), sub ?: if (e.dir) null else e.name.substringAfterLast('.').uppercase(), focusRequester = fr, onClick = { enter(e) })
+        }
+    }
+}
+
+/** 見せる名前：えいがは「題名 (年)」→ 題名、「Season 01」→「シーズン 1」、話は「3 話 サブタイトル」。 */
+private fun label(kind: Kind, name: String, dir: Boolean): String = when {
+    kind == Kind.VIDEO && dir -> Names.season(name) ?: Names.work(kind.shelfName(name)).first
+    kind == Kind.VIDEO -> Names.episode(name)
+    dir -> kind.shelfName(name)
+    else -> kind.title(name)
+}
+
+@Composable
+private fun Chip(text: String, onClick: () -> Unit) {
+    Focusable(Modifier, onClick, scaleTo = 1.05f) { Box(Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) { T(text, size = 16.sp) } }
+}
+
+/** 絵の並びの 1 つ：えいがの作品はポスター、おんがくのアルバムはジャケット、しゃしんは縮小版。無ければ絵文字。 */
+@Composable
+private fun NasTile(app: TvHomeApp, kind: Kind, e: NasEntry, title: String, sub: String?, w: androidx.compose.ui.unit.Dp, h: androidx.compose.ui.unit.Dp, fr: FocusRequester?, onClick: () -> Unit) {
+    val p = LocalPalette.current
+    val thumbPath = when {
+        kind == Kind.VIDEO && e.dir && Names.season(e.name) == null -> "${e.path}/poster.jpg"
+        kind == Kind.MUSIC && e.dir -> "${e.path}/cover.jpg"
+        kind == Kind.PHOTO && !e.dir -> e.path
+        else -> null
+    }
+    val img by androidx.compose.runtime.produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, thumbPath) {
+        value = thumbPath?.let { tp -> withContext(Dispatchers.IO) { Thumbs.get(app, tp) } }
+    }
+    Focusable(Modifier.width(w).height(h), onClick, focusRequester = fr) { focused ->
+        Column(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxWidth().weight(1f).background(p.raised), contentAlignment = Alignment.Center) {
+                img?.let { androidx.compose.foundation.Image(it, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop) }
+                    ?: T(if (e.dir) (if (Names.season(e.name) != null) "📂" else kind.icon) else ITEM_ICON.getValue(kind), size = 30.sp)
+            }
+            Column(Modifier.padding(horizontal = 6.dp, vertical = 4.dp)) {
+                T(title, size = 12.sp, weight = if (focused) FontWeight.SemiBold else FontWeight.Normal, lines = 2)
+                sub?.let { T(it, size = 10.sp, color = p.accent) }
             }
         }
-        if (entries != null && list.isEmpty()) item { T("なにも ありません", size = 18.sp, color = p.muted) }
+    }
+}
+
+/** 縮小版の絵（NAS の Thumb）を覚えておく（テレビの少ないメモリでも軽く）。 */
+object Thumbs {
+    private val cache = object : android.util.LruCache<String, androidx.compose.ui.graphics.ImageBitmap>(48) {}
+    private val missing = java.util.Collections.synchronizedSet(HashSet<String>())
+    fun get(app: TvHomeApp, path: String): androidx.compose.ui.graphics.ImageBitmap? {
+        cache.get(path)?.let { return it }
+        if (path in missing) return null
+        val b = runCatching { Pictures.decode(Pictures.fetch(app.state.dsm.thumbUrl(path, "small"), 15_000), 320, 320) }.getOrNull()
+        if (b == null) { missing += path; return null }
+        return b.asImageBitmap().also { cache.put(path, it) }
     }
 }
 

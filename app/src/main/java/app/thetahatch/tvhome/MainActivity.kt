@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                         "settings" -> SettingsScreen(app, go) { title, done -> pinAsk = title to done }
                         "updates" -> UpdatesScreen(app)
                         "apps" -> AllAppsScreen(app, { menu = it }, guarded)
-                        "nas" -> { val (k, path) = app.state.nasOpen.collectAsState().value; NasScreen(app, k, path) }
+                        "nas" -> { val v = app.state.nasOpen.collectAsState().value; NasScreen(app, v) }
                         else -> when (app.store.layout.also { tick }) {
                             "bar" -> CrossBarLayout(app, homeFocus, go, { menu = it }, guarded)
                             "simple" -> HomeScreen(app, homeFocus, go, { menu = it }, guarded)

@@ -10,6 +10,7 @@ import app.thetahatch.tvhome.music.Music
 import app.thetahatch.tvhome.music.MusicLib
 import app.thetahatch.tvhome.nas.Dsm
 import app.thetahatch.tvhome.nas.Kind
+import app.thetahatch.tvhome.nas.Index as NasIndex
 import app.thetahatch.tvhome.nas.NasEntry
 import app.thetahatch.tvhome.nas.OtpRequired
 import app.thetahatch.tvhome.nas.Unreachable
@@ -52,8 +53,13 @@ class HomeState(private val app: TvHomeApp) {
     /** NAS の困りごと（届かない・2 段階認証 など）。 */
     val nasError = MutableStateFlow<String?>(null)
     val nasNeedsOtp = MutableStateFlow(false)
-    /** NAS の画面で開く種類とフォルダ（空ならいちばん上）。 */
-    val nasOpen = MutableStateFlow(Kind.MUSIC to "")
+    /** NAS の画面で開く物：種類・フォルダ（空ならいちばん上）・見せ方（browse・recent・search）・探すことば。 */
+    data class NasView(val kind: Kind, val path: String, val mode: String = "browse", val query: String = "")
+    val nasOpen = MutableStateFlow(NasView(Kind.MUSIC, ""))
+    /** 索引（さいきん ついか・さがす）。 */
+    val indexes: Map<Kind, NasIndex> by lazy { Kind.entries.associateWith { NasIndex(app, it) } }
+    /** 索引を作っている途中：種類 → 見つけた数。 */
+    val indexing = MutableStateFlow<Map<Kind, Int>>(emptyMap())
     private val shelvesAt = HashMap<Kind, Long>()
     /** 設定が変わるたびに増える（画面の読み直し用）。 */
     private val _tick = MutableStateFlow(0)
@@ -147,7 +153,23 @@ class HomeState(private val app: TvHomeApp) {
         }
     }
 
-    fun openNas(k: Kind, path: String) { nasOpen.value = k to path }
+    fun openNas(k: Kind, path: String, mode: String = "browse", query: String = "") { nasOpen.value = NasView(k, path, mode, query) }
+
+    /** 索引を読み、古ければ裏で作り直す。終わったら done。 */
+    fun ensureIndex(k: Kind, force: Boolean = false, done: () -> Unit = {}) {
+        val ix = indexes.getValue(k)
+        app.scope.launch {
+            withContext(Dispatchers.IO) { ix.load() }
+            if (ix.items.isNotEmpty()) done()
+            if ((ix.stale || force) && k !in indexing.value && dsm.configured && !app.safeMode) {
+                indexing.value = indexing.value + (k to 0)
+                runCatching { withContext(Dispatchers.IO) { ix.build(dsm, root(k)) { n -> indexing.value = indexing.value + (k to n) } } }
+                    .onFailure { nasProblem(it) }
+                indexing.value = indexing.value - k
+                done()
+            }
+        }
+    }
 
     fun nasProblem(e: Throwable) {
         nasNeedsOtp.value = e is OtpRequired

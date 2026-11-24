@@ -18,7 +18,8 @@ enum class Kind(
     val exts: Set<String>,
 ) {
     MUSIC("music", "おんがく", "🎵", "nas.music", "/music", listOf("▶"), MusicLib.AUDIO),
-    VIDEO("video", "えいが", "🎬", "nas.video", "/video", listOf("⑧", "▶"),
+    // 動画の共有フォルダは /8Tube、棚の目印は ▶（Theta Movie Hatch の docs/naming-convention.md §1）
+    VIDEO("video", "えいが", "🎬", "nas.video", "/8Tube", listOf("▶", "⑧"),
         setOf("mkv", "mp4", "m4v", "ts", "m2ts", "mts", "avi", "mov", "wmv", "webm", "mpg", "mpeg", "flv", "3gp")),
     BOOK("book", "ほん", "📚", "nas.book", "/book", listOf("⑧", "▶"), setOf("pdf", "cbz", "zip", "epub")),
     PHOTO("photo", "しゃしん", "🖼", "nas.photo", "/photo", listOf("▶"),
