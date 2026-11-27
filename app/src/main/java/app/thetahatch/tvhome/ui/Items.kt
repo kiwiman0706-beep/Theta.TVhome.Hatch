@@ -74,6 +74,16 @@ fun buildCategories(
     return buildList {
         add(Category("tv", "テレビ", "📺", tv))
         for (k in listOf(Kind.VIDEO, Kind.MUSIC, Kind.PHOTO, Kind.BOOK)) add(Category(k.key, k.label, k.icon, nasItems(k, nas[k].orEmpty())))
+        // きく：Gemini（Google 検索・Google マップで調べる）、画像検索はブラウザで
+        fun ask(mode: String, voice: Boolean) { app.state.askOpen.value = mode to voice; go("ask") }
+        add(Category("ask", "きく", "💬", buildList {
+            if (!s.hasSecret("gemini.key")) add(Item("gemini-key", "Gemini を せっていする", "⚙", sub = "じぶんの API キーを いれる", onClick = { guarded { go("settings") } }))
+            add(Item("ask-voice", "こえで きく", "🎤", sub = "Google で しらべて こたえる", onClick = { ask("search", true) }))
+            add(Item("ask-text", "もじで きく", "⌨", sub = "BT キーボード・テレビの もじ入力", onClick = { ask("search", false) }))
+            add(Item("maps-voice", "ちずで さがす（こえ）", "🗺", sub = "Google マップで ちかくを しらべる", onClick = { ask("maps", true) }))
+            add(Item("maps-text", "ちずで さがす（もじ）", "🗺", onClick = { ask("maps", false) }))
+            add(Item("image", "がぞうを さがす", "🖼", sub = "Google 画像検索（ブラウザで ひらく）", onClick = { ask("image", false) }))
+        }))
         if (fav.isNotEmpty() || !kids) add(Category("fav", "すき", "⭐", fav))
         if (!kids && withAll) add(Category("apps", "アプリ", "▦", rest))
         add(Category("hatch", "せってい", "⚙", hatch))

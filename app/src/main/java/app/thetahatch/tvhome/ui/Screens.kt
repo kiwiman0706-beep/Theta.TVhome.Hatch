@@ -172,6 +172,10 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
             RowButton("${k.label}の フォルダ", app.state.root(k), onClick = { textAsk = Triple("${k.label}の 共有フォルダ（例 ${k.defaultRoot}）", k.rootKey, false) })
         }
 
+        item { SectionTitle("Gemini（きく）") }
+        item { RowButton("Gemini の API キー", if (s.hasSecret("gemini.key")) "設定済み" else "未設定", onClick = { textAsk = Triple("Gemini の API キー（Google AI Studio で作る）", "gemini.key", true) }, note = "じぶんの キーで つかいます。テレビの中で 暗号化して 持ちます。ADB の SET_SECRET でも") }
+        item { RowButton("モデル", s.get("gemini.model")?.ifBlank { null } ?: "gemini-2.5-flash", onClick = { textAsk = Triple("Gemini のモデル（例 gemini-2.5-flash）", "gemini.model", false) }) }
+
         item { SectionTitle("カレンダー") }
         item {
             val err by app.state.calendarError.collectAsState()

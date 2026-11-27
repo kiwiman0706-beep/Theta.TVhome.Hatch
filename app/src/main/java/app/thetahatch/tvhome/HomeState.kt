@@ -56,6 +56,9 @@ class HomeState(private val app: TvHomeApp) {
     /** NAS の画面で開く物：種類・フォルダ（空ならいちばん上）・見せ方（browse・recent・search）・探すことば。 */
     data class NasView(val kind: Kind, val path: String, val mode: String = "browse", val query: String = "")
     val nasOpen = MutableStateFlow(NasView(Kind.MUSIC, ""))
+    /** きく：見せ方（search・maps・image）と、こえで始めるか。 */
+    val askOpen = MutableStateFlow("search" to true)
+
     /** 索引（さいきん ついか・さがす）。 */
     val indexes: Map<Kind, NasIndex> by lazy { Kind.entries.associateWith { NasIndex(app, it) } }
     /** 索引を作っている途中：種類 → 見つけた数。 */

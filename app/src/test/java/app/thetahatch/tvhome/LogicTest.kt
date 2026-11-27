@@ -177,4 +177,14 @@ class LogicTest {
         assertEquals(listOf("/8Tube/▶ドラマ/〇〇 (2019)", "/8Tube/▶アニメ/トトロ (1988)"), I.recentOf(items, Kind.VIDEO).map { it.path })
         assertEquals("/8Tube/▶アニメ/トトロ (1988)", I.searchOf(items, "ととろ").first().path)
     }
+
+    @Test fun geminiAnswer() {
+        val o = org.json.JSONObject("""{"candidates":[{"content":{"parts":[{"text":"**公園**を 3 つ\n* 元町公園"}]},
+          "groundingMetadata":{"groundingChunks":[{"maps":{"uri":"https://maps.google.com/maps?cid=1","title":"Motomachi Park - Google Maps"}},{"web":{"uri":"https://example.com","title":"example.com"}}]}}]}""")
+        val a = app.thetahatch.tvhome.data.Gemini.parse(o)
+        assertEquals("公園を 3 つ\n・元町公園", a.text)
+        assertEquals("Motomachi Park", a.sources[0].title)
+        assertTrue(a.sources[0].place)
+        assertFalse(a.sources[1].place)
+    }
 }

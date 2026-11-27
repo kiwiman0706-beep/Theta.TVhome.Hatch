@@ -24,6 +24,7 @@ import app.thetahatch.tvhome.rescue.Rescue
 import app.thetahatch.tvhome.rescue.RescueActivity
 import app.thetahatch.tvhome.skin.paletteFor
 import app.thetahatch.tvhome.ui.AllAppsScreen
+import app.thetahatch.tvhome.ui.AskScreen
 import app.thetahatch.tvhome.ui.CrossBarLayout
 import app.thetahatch.tvhome.ui.KidsLayout
 import app.thetahatch.tvhome.ui.HomeScreen
@@ -92,6 +93,7 @@ class MainActivity : ComponentActivity() {
                         "settings" -> SettingsScreen(app, go) { title, done -> pinAsk = title to done }
                         "updates" -> UpdatesScreen(app)
                         "apps" -> AllAppsScreen(app, { menu = it }, guarded)
+                        "ask" -> { val (m, v) = app.state.askOpen.collectAsState().value; AskScreen(app, m, v) }
                         "nas" -> { val v = app.state.nasOpen.collectAsState().value; NasScreen(app, v) }
                         else -> when (app.store.layout.also { tick }) {
                             "bar" -> CrossBarLayout(app, homeFocus, go, { menu = it }, guarded)

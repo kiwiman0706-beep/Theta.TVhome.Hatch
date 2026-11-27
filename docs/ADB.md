@@ -126,6 +126,8 @@ adb push calendar.txt /sdcard/Android/data/app.thetahatch.tvhome/files/calendar.
 adb shell am broadcast -a app.thetahatch.adb.SET_SECRET -n $W --es key calendar.ics --es file /sdcard/Android/data/app.thetahatch.tvhome/files/calendar.txt
 ```
 
+Gemini の API キー（秘密。同じくファイルで）：`--es key gemini.key --es file …/gemini.txt`。モデルは `SET gemini.model`。
+
 ほか：`ui.skin`（dark・light・pop など）、`kids.mode`（true・false）、`kids.pin`（数字）、`apps.favorites`（パッケージ名をカンマ区切り）、`apps.hidden`、`update.auto`。
 画面を開く：`-a app.thetahatch.adb.OPEN --es screen settings`（home・settings・updates・apps）。
 更新：`-a app.thetahatch.adb.CHECK_UPDATE`、`-a app.thetahatch.adb.UPDATE`。
