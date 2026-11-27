@@ -21,8 +21,8 @@ android {
         applicationId = "app.thetahatch.tvhome"
         minSdk = 28
         targetSdk = 35
-        versionCode = 14
-        versionName = "0.11.0"
+        versionCode = 15
+        versionName = "0.12.0"
         // テレビは ARM（AQUOS は 64 ビット、R4-SH は 32 ビット）。x86 は入れない（APK を小さく）
         ndk { abiFilters += listOf("armeabi-v7a", "arm64-v8a") }
     }

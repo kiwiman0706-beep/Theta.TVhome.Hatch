@@ -194,4 +194,28 @@ class LogicTest {
         assertEquals("AIza x+y", m["gemini.key"])
         assertEquals("", m["empty"])
     }
+
+    @Test fun geminiActions() {
+        val G = app.thetahatch.tvhome.data.Gemini
+        assertTrue(G.wantsAction("あしたの3時に歯医者の予定を入れて"))
+        assertTrue(G.wantsAction("ぎゅうにゅうを かう を やることに ついか"))
+        assertFalse(G.wantsAction("あしたの天気は？"))
+        val o = org.json.JSONObject("""{"candidates":[{"content":{"parts":[{"functionCall":{"name":"add_event","args":{"title":"歯医者","date":"2026-11-28","start":"15:00"}}}]}}]}""")
+        val call = o.getJSONArray("candidates").getJSONObject(0).getJSONObject("content").getJSONArray("parts").getJSONObject(0).getJSONObject("functionCall")
+        val a = G.action(call.getString("name"), call.getJSONObject("args"))!!
+        assertEquals(java.time.LocalTime.of(15, 0), a.start)
+        assertTrue(a.describe().contains("11/28"))
+        val zone = ZoneId.of("Asia/Tokyo")
+        val e = app.thetahatch.tvhome.data.GCal.eventBody(a, zone)
+        assertEquals("2026-11-28T15:00:00", e.getJSONObject("start").getString("dateTime"))
+        assertEquals("2026-11-28T16:00:00", e.getJSONObject("end").getString("dateTime"))
+        val all = app.thetahatch.tvhome.data.GCal.eventBody(a.copy(start = null), zone)
+        assertEquals("2026-11-29", all.getJSONObject("end").getString("date"))
+        val late = app.thetahatch.tvhome.data.GCal.eventBody(a.copy(start = java.time.LocalTime.of(23, 30), end = java.time.LocalTime.of(1, 0)), zone)
+        assertEquals("2026-11-29T01:00:00", late.getJSONObject("end").getString("dateTime"))
+        val t = G.action("add_task", org.json.JSONObject("""{"title":"ぎゅうにゅう"}"""))!!
+        assertTrue(t.task && t.date == null)
+        assertFalse(app.thetahatch.tvhome.data.GCal.taskBody(t).has("due"))
+        assertEquals(null, G.action("add_event", org.json.JSONObject("""{"title":"x"}""")))
+    }
 }
