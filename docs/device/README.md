@@ -10,5 +10,5 @@
 
 - 新しいテレビ：`docs/PROMPT_LOCAL_DEVICE.md` の依頼文を、そのテレビと同じ LAN の PC のローカルの Claude Code に渡す
 - 自宅の AQUOS に TVhome を入れる：`docs/PROMPT_LOCAL_INSTALL.md`
-- 自宅の AQUOS の USB HDD の録画を TVhome から：`docs/PROMPT_LOCAL_RECORDINGS.md`
+- 自宅の AQUOS の放送のチャンネル・USB HDD の録画を TVhome から：`docs/PROMPT_LOCAL_RECORDINGS.md`
 - ADB の手順そのもの：`docs/ADB.md`（どのテレビでも同じ。AQUOS 4T-C65DQ2 の固有の話は印を付けてある）
