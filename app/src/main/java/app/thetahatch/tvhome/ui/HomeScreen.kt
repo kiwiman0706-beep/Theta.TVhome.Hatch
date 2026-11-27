@@ -53,7 +53,7 @@ import java.util.Locale
 private val TILE_W = 200.dp
 private val TILE_H = 128.dp
 
-/** 長押し・メニューで出す、タイルの操作。 */
+/** メニューボタンで出す、タイルの操作。 */
 data class TileMenu(val title: String, val actions: List<Pair<String, () -> Unit>>)
 
 @Composable
@@ -99,7 +99,7 @@ fun HomeScreen(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> Unit,
         if (favorites.isNotEmpty() || !kids) {
             item { SectionTitle("すきなアプリ") }
             item {
-                if (favorites.isEmpty()) T("アプリを選んで 長押し（またはメニューボタン）で ★ を付けると、ここに並びます", size = 20.sp, color = p.muted, lines = 2)
+                if (favorites.isEmpty()) T("アプリを選んで メニューボタンで ★ を付けると、ここに並びます", size = 20.sp, color = p.muted, lines = 2)
                 else AppRow(app, favorites, big = true, menu = menu, guarded = guarded)
             }
         }

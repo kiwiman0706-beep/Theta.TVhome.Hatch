@@ -135,8 +135,40 @@ class MainActivity : ComponentActivity() {
                     if (app.store.kidsMode && app.store.hasPin()) screen.value = "rescue-pin" else openRescue()
                     return true
                 }
+                if (voiceKey(event)) return true
                 return original.dispatchKeyEvent(event)
             }
+        }
+    }
+
+    private var voiceFired = false
+    private val voiceHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val fireVoice = Runnable {
+        if (screen.value in NO_VOICE) return@Runnable
+        voiceFired = true
+        val app = application as TvHomeApp
+        app.state.askOpen.value = "search" to true
+        app.state.voiceTick.value++
+        screen.value = "ask"
+    }
+
+    /**
+     * 決定ボタンの長押し（0.7 秒）：どの画面からでも「こえで きく」（調べ物も、予定・やることを入れるのも）。
+     * 押し続けてもくり返しのキーが来ないリモコンがあるので、時間で決める。
+     * 長押しのあいだのくり返しと、長押しのあと離したとき（決定）は画面に渡さない。★・並べ替えなどはメニューボタンで。
+     */
+    private fun voiceKey(e: KeyEvent): Boolean {
+        if (e.keyCode != KeyEvent.KEYCODE_DPAD_CENTER && e.keyCode != KeyEvent.KEYCODE_ENTER && e.keyCode != KeyEvent.KEYCODE_NUMPAD_ENTER) return false
+        return when {
+            e.action == KeyEvent.ACTION_DOWN && e.repeatCount == 0 -> {
+                voiceFired = false
+                voiceHandler.removeCallbacks(fireVoice)
+                voiceHandler.postDelayed(fireVoice, LONG_PRESS_MS)
+                false
+            }
+            e.action == KeyEvent.ACTION_DOWN -> true
+            e.action == KeyEvent.ACTION_UP -> { voiceHandler.removeCallbacks(fireVoice); voiceFired.also { voiceFired = false } }
+            else -> false
         }
     }
 
@@ -162,6 +194,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        voiceHandler.removeCallbacks(fireVoice)
         UpdateHub.foreground = false
     }
 
@@ -172,5 +205,8 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val EXTRA_SCREEN = "screen"
+        const val LONG_PRESS_MS = 700L
+        /** 番号を入れている途中などは、長押しで声にしない。 */
+        val NO_VOICE = setOf("rescue-pin")
     }
 }

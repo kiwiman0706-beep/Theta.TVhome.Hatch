@@ -101,7 +101,7 @@ private val DOW = listOf("月", "火", "水", "木", "金", "土", "日")
  * - 下にさりげなく 2 週間の帯（月曜はじまり・てんき・よてい）。カレンダーを選ぶと 4 週の表に広がり、↓ で日にちを選べる
  * - 左上：いま再生中のもの（無ければ名前とあいさつ）。右上：時計・てんき・ネット（見るだけ。フォーカスは移らない）
  * - 操作しないと 5 秒で薄く、25 秒でメニューが消える（いちばん上で「戻る」でもすぐ消える）。なにかキーで戻る（そのキーは出すだけ）
- * 操作：←→ まとまり、↑↓ えらぶ、決定 ひらく、長押し・メニュー 操作。ぜんぶのアプリは「アプリ」のいちばん下
+ * 操作：←→ まとまり、↑↓ えらぶ、決定 ひらく、メニュー 操作、決定の長押し こえで きく。ぜんぶのアプリは「アプリ」のいちばん下
  */
 @Composable
 fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> Unit, menu: (TileMenu) -> Unit, guarded: (() -> Unit) -> Unit) {
@@ -130,7 +130,6 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
     var cat by remember { mutableIntStateOf(1) }
     val pos = remember { mutableStateMapOf<String, Int>() }
     var inGrid by remember { mutableStateOf(false) }
-    var longPressed by remember { mutableStateOf(false) }
     var lastKey by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var idle by remember { mutableIntStateOf(0) }
     var now by remember { mutableStateOf(ZonedDateTime.now()) }
@@ -190,14 +189,11 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
                         }
                         true
                     }
-                    e.type == KeyEventType.KeyDown && center -> {
-                        if (e.nativeKeyEvent.repeatCount == 8 && !longPressed) { longPressed = true; current.items.getOrNull(idx)?.onMenu?.invoke() }
-                        true
-                    }
+                    e.type == KeyEventType.KeyDown && center -> true
                     e.type == KeyEventType.KeyUp && center -> {
                         if (current.key == "cal") inGrid = true
-                        else if (!longPressed) current.items.getOrNull(idx)?.onClick?.invoke()
-                        longPressed = false; true
+                        else current.items.getOrNull(idx)?.onClick?.invoke()
+                        true
                     }
                     e.type == KeyEventType.KeyUp && e.key == Key.Menu -> { current.items.getOrNull(idx)?.onMenu?.invoke(); true }
                     // いちばん上で「戻る」：メニューを消す（ホームなので、それ以上どこへも行かない）

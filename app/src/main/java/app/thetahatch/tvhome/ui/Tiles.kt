@@ -5,7 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 
 /**
  * リモコンで選ぶ枠。選んでいる間は accent の太い枠と少し拡大（THETA_TV_SPEC §2）。
- * 決定＝onClick、長押し・メニューボタン＝onMenu。
+ * 決定＝onClick、メニューボタン＝onMenu（決定の長押しは「こえで きく」。MainActivity）。
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -72,7 +72,7 @@ fun Focusable(
             .clip(shape)
             .background(if (focused) p.raised else p.panel)
             .border(if (focused) 4.dp else 1.dp, if (focused) p.accent else p.line, shape)
-            .combinedClickable(onClick = onClick, onLongClick = onMenu),
+            .clickable(onClick = onClick),
     ) { content(focused) }
 }
 

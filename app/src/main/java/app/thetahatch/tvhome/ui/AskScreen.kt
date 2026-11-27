@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -137,7 +138,8 @@ fun AskScreen(app: TvHomeApp, mode: String, voiceFirst: Boolean) {
                 .onFailure { consentFor.value = null; error = "きょかの がめんを だせません" }
         }
     }
-    LaunchedEffect(mode) {
+    val voiceTick by app.state.voiceTick.collectAsState()
+    LaunchedEffect(mode, voiceTick) {
         if (voiceFirst) { if (canVoice) runCatching { voice.launch(voiceIntent) } else asking = true }
         delay(150); runCatching { first.requestFocus() }
     }

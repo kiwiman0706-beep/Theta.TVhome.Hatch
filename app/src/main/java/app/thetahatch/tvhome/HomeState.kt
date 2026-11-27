@@ -60,6 +60,8 @@ class HomeState(private val app: TvHomeApp) {
     val nasOpen = MutableStateFlow(NasView(Kind.MUSIC, ""))
     /** きく：見せ方（search・maps・image）と、こえで始めるか。 */
     val askOpen = MutableStateFlow("search" to true)
+    /** 決定の長押しのたびに増える（きく の画面にいるときも、もう一度 声を聞く）。 */
+    val voiceTick = MutableStateFlow(0)
 
     /** 索引（さいきん ついか・さがす）。 */
     val indexes: Map<Kind, NasIndex> by lazy { Kind.entries.associateWith { NasIndex(app, it) } }

@@ -5,7 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -123,7 +123,7 @@ fun RetroWindow(
             .let { m -> if (focusRequester != null) m.focusRequester(focusRequester) else m }
             .let { m -> if (onFocus != null) m.onFocusChanged { if (it.isFocused) onFocus() } else m }
             .onPreviewKeyEvent { e -> if (onMenu != null && e.type == KeyEventType.KeyUp && e.key == Key.Menu) { onMenu(); true } else false }
-            .let { m -> if (onClick != null) m.combinedClickable(interactionSource = interaction, indication = null, onClick = onClick, onLongClick = onMenu) else m },
+            .let { m -> if (onClick != null) m.clickable(interactionSource = interaction, indication = null, onClick = onClick) else m },
     ) {
         if (title != null) {
             Row(
