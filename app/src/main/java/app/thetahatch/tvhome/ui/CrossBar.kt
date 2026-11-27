@@ -99,9 +99,9 @@ private val DOW = listOf("月", "火", "水", "木", "金", "土", "日")
  * クロスバー（はじめの形）：
  * - 上端に横の帯（まとまり：カレンダー・テレビ・アプリ・せってい。左右はループ）、選んだまとまりの中身はその下に縦
  * - 下にさりげなく 2 週間の帯（月曜はじまり・てんき・よてい）。カレンダーを選ぶと 4 週の表に広がり、↓ で日にちを選べる
- * - 左上：いま再生中のもの（無ければ名前とあいさつ）。右上：時計・てんき・ぜんぶのアプリ・ネット
+ * - 左上：いま再生中のもの（無ければ名前とあいさつ）。右上：時計・てんき・ネット（見るだけ。フォーカスは移らない）
  * - 操作しないと 5 秒で薄く、25 秒でメニューが消える（いちばん上で「戻る」でもすぐ消える）。なにかキーで戻る（そのキーは出すだけ）
- * 操作：←→ まとまり、↑↓ えらぶ、決定 ひらく、長押し・メニュー 操作。中身のいちばん上で ↑ → 右上の「ぜんぶのアプリ」
+ * 操作：←→ まとまり、↑↓ えらぶ、決定 ひらく、長押し・メニュー 操作。ぜんぶのアプリは「アプリ」のいちばん下
  */
 @Composable
 fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> Unit, menu: (TileMenu) -> Unit, guarded: (() -> Unit) -> Unit) {
@@ -124,13 +124,12 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
         buildCategories(app, apps, entries, updates, go, menu, guarded, withAll = false,
             nas = mapOf(Kind.VIDEO to sv, Kind.MUSIC to sm, Kind.PHOTO to sp, Kind.BOOK to sb))
     }
-    val cats = remember(base) { listOf(Category("cal", "カレンダー", "📅", emptyList())) + base.map { if (it.key == "fav") it.copy(label = "アプリ", icon = "⭐") else it } }
+    val cats = remember(base) { listOf(Category("cal", "カレンダー", "📅", emptyList())) + base.map { if (it.key == "fav") it.copy(label = "アプリ", icon = "⭐", items = it.items + Item("all-apps", "ぜんぶのアプリ", "▦", sub = "ホームに だす アプリを えらぶ", onClick = { guarded { go("apps") } })) else it } }
     val colors = listOf(p.accent2, p.accent, p.accent3, p.widget, p.launch)
 
     var cat by remember { mutableIntStateOf(1) }
     val pos = remember { mutableStateMapOf<String, Int>() }
     var inGrid by remember { mutableStateOf(false) }
-    var top by remember { mutableStateOf(false) } // 右上の「ぜんぶのアプリ」を選んでいる
     var longPressed by remember { mutableStateOf(false) }
     var lastKey by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var idle by remember { mutableIntStateOf(0) }
@@ -163,7 +162,7 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
     fun move(dc: Int) {
         val n = cats.size
         cat = ((cat + dc) % n + n) % n
-        inGrid = false; top = false; weeks = 0; sel = todayIdx
+        inGrid = false; weeks = 0; sel = todayIdx
     }
 
     Box(
@@ -191,12 +190,6 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
                         }
                         true
                     }
-                    // 右上の「ぜんぶのアプリ」
-                    top -> {
-                        if (center && e.type == KeyEventType.KeyUp) { guarded { go("apps") }; true }
-                        else if (e.type == KeyEventType.KeyDown && (e.key == Key.DirectionDown || back)) { top = false; true }
-                        else e.type == KeyEventType.KeyDown && e.key != Key.Back
-                    }
                     e.type == KeyEventType.KeyDown && center -> {
                         if (e.nativeKeyEvent.repeatCount == 8 && !longPressed) { longPressed = true; current.items.getOrNull(idx)?.onMenu?.invoke() }
                         true
@@ -212,7 +205,8 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
                     e.type != KeyEventType.KeyDown -> false
                     e.key == Key.DirectionLeft -> { move(-1); true }
                     e.key == Key.DirectionRight -> { move(1); true }
-                    e.key == Key.DirectionUp -> { if (current.key == "cal" || idx == 0) top = true else pos[current.key] = idx - 1; true }
+                    // 上の段（時計など）には移らない（横の移動はクロスバーだけ）
+                    e.key == Key.DirectionUp -> { if (current.key != "cal" && idx > 0) pos[current.key] = idx - 1; true }
                     e.key == Key.DirectionDown -> { if (current.key == "cal") inGrid = true else pos[current.key] = (idx + 1).coerceAtMost((current.items.size - 1).coerceAtLeast(0)); true }
                     else -> false
                 }
@@ -231,7 +225,7 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
         }
 
         // ---- 右上：時計・てんき・ぜんぶのアプリ・ネット
-        TopRight(now, forecast, net, top, Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = SIDE), menuAlpha, idle == 2) { guarded { go("apps") } }
+        TopRight(now, forecast, net, Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = SIDE), idle == 2)
 
         // ---- 横の帯：まとまり（ループ）
         Box(Modifier.fillMaxWidth().alpha(menuAlpha)) {
@@ -248,7 +242,7 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
                 Column(
                     Modifier.offset(x = SEL_X - CAT_W / 2 + CAT_W * da, y = BAR_TOP).width(CAT_W)
                         .alpha(if (sel0) 1f else 0.5f)
-                        .clickable(remember { MutableInteractionSource() }, null) { cat = i; inGrid = false; top = false; lastKey = System.currentTimeMillis() },
+                        .clickable(remember { MutableInteractionSource() }, null) { cat = i; inGrid = false; lastKey = System.currentTimeMillis() },
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     val s = if (sel0) 52.dp else 42.dp
@@ -281,7 +275,7 @@ fun CrossBarLayout(app: TvHomeApp, firstFocus: FocusRequester, go: (String) -> U
                     }
                 }
                 if (current.items.isEmpty()) {
-                    T(if (current.key == "fav") "右上の「ぜんぶのアプリ」で えらんで「ホームに だす」" else "なし", size = 13.sp, color = p.muted)
+                    T(if (current.key == "fav") "「ぜんぶのアプリ」で えらんで「ホームに だす」" else "なし", size = 13.sp, color = p.muted)
                 }
             }
         }
@@ -357,7 +351,7 @@ private fun NowPlayingCard(pl: Playing) {
 }
 
 @Composable
-private fun TopRight(now: ZonedDateTime, forecast: Forecast?, net: NetInfo, allFocused: Boolean, modifier: Modifier, menuAlpha: Float, hidden: Boolean, openAll: () -> Unit) {
+private fun TopRight(now: ZonedDateTime, forecast: Forecast?, net: NetInfo, modifier: Modifier, hidden: Boolean) {
     val p = LocalPalette.current
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         Row(verticalAlignment = Alignment.Bottom) {
@@ -379,15 +373,6 @@ private fun TopRight(now: ZonedDateTime, forecast: Forecast?, net: NetInfo, allF
                 f.days.firstOrNull()?.let { d -> T("%.0f° / %.0f°  ☂%d%%".format(d.max, d.min, d.rain), size = 9.sp, color = p.muted) }
             }
         }
-        // ぜんぶのアプリ（天気の右）。中身のいちばん上で ↑ で選べる
-        Spacer(Modifier.width(15.dp))
-        Box(
-            Modifier.alpha(if (hidden) 0f else menuAlpha).clip(RoundedCornerShape(16.dp))
-                .background(if (allFocused) p.accent else p.panel)
-                .border(if (allFocused) 0.dp else 0.5.dp, p.line, RoundedCornerShape(16.dp))
-                .clickable(remember { MutableInteractionSource() }, null, onClick = openAll)
-                .padding(horizontal = 11.dp, vertical = 6.dp),
-        ) { T("▦ ぜんぶのアプリ", size = 11.sp, color = if (allFocused) p.onAccent else p.fg, weight = FontWeight.Medium) }
         Spacer(Modifier.width(15.dp))
         Column(Modifier.alpha(if (hidden) 0f else 1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             NetLine(net.kind != "none", when (net.kind) { "wifi" -> "Wi-Fi"; "ethernet" -> "LAN"; "none" -> "オフライン"; else -> net.kind }, if (net.kind == "wifi") net.bars else -1)

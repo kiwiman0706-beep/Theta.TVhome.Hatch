@@ -65,7 +65,8 @@ fun buildCategories(
             val last = s.last(k.key)
             if (last.isNotBlank()) add(Item(k.key + "-last", "つづきから", "⏯", sub = k.shelfName(last.trimEnd('/').substringAfterLast('/')), onClick = { app.state.openNas(k, last); go("nas") }))
             add(Item(k.key + "-recent", "さいきん ついか", "🆕", sub = "NAS に あたらしく 入った もの", onClick = { app.state.openNas(k, "", "recent"); go("nas") }))
-            add(Item(k.key + "-search", "さがす", "🔍", sub = "なまえで さがす（もじ・こえ）", onClick = { app.state.openNas(k, "", "search"); go("nas") }))
+            add(Item(k.key + "-search", "さがす", "🔍", sub = "なまえで さがす（もじ）", onClick = { app.state.openNas(k, "", "search"); go("nas") }))
+            add(Item(k.key + "-voice", "こえで さがす", "🎤", sub = "リモコンの マイクで", onClick = { app.state.openNas(k, "", "voice"); go("nas") }))
             shelves.forEach { e -> add(Item(k.key + ":" + e.path, k.shelfName(e.name), k.icon, onClick = { app.state.openNas(k, e.path); go("nas") })) }
             add(Item(k.key + "-all", "ぜんぶの ${k.label}", k.icon, sub = app.state.root(k), onClick = { app.state.openNas(k, ""); go("nas") }))
         }

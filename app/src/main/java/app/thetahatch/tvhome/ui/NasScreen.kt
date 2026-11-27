@@ -29,6 +29,9 @@ import app.thetahatch.tvhome.data.NetStatus
 import app.thetahatch.tvhome.music.MusicLib
 import app.thetahatch.tvhome.nas.Kind
 import app.thetahatch.tvhome.nas.Names
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import app.thetahatch.tvhome.viewer.Pictures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -97,7 +100,10 @@ fun NasScreen(app: TvHomeApp, view: app.thetahatch.tvhome.HomeState.NasView) {
     var indexVersion by remember { mutableStateOf(0) }
     LaunchedEffect(mode, kind) { if (mode != "browse") st.ensureIndex(kind) { indexVersion++ } }
     LaunchedEffect(mode, query, indexVersion) { if (mode != "browse") { delay(150); runCatching { first.requestFocus() } } }
-    LaunchedEffect(mode) { if (mode == "search" && query.isBlank()) asking = true }
+    LaunchedEffect(mode) {
+        if (mode == "search" && query.isBlank()) asking = true
+        if (mode == "voice") { mode = "search"; if (canVoice) runCatching { voice.launch(voiceIntent) } else { app.toast("このテレビには こえの入力が ありません"); asking = true } }
+    }
 
     androidx.activity.compose.BackHandler(enabled = stack.size > 1 || (stack.isNotEmpty() && mode != "browse")) {
         stack = stack.dropLast(1)
@@ -152,11 +158,26 @@ fun NasScreen(app: TvHomeApp, view: app.thetahatch.tvhome.HomeState.NasView) {
     }
     fun enter(e: NasEntry) { if (e.dir) stack = stack + e.path else open(e) }
 
+    fun menuActions(): List<Pair<String, () -> Unit>> = buildList {
+        add("🔍 さがす" to { asking = true })
+        if (canVoice) add("🎤 こえで さがす" to { runCatching { voice.launch(voiceIntent) } })
+        add("🆕 さいきん ついか" to { stack = emptyList(); mode = "recent" })
+        if (mode != "browse" || stack.size > 1) add("📁 ぜんぶ（いちばん上）" to { mode = "browse"; stack = listOf(root) })
+        if (mode != "browse") add("⟳ しらべなおす" to { st.ensureIndex(kind, force = true) { indexVersion++ } })
+        if (kind == Kind.MUSIC && items.isNotEmpty() && path != null) add("▶ ぜんぶ さいせい" to { open(items.first()) })
+        if (kind == Kind.MUSIC) add("⏯ いちじていし／さいかい" to { scope.launch { runCatching { st.music.toggle() } } })
+        if (kind == Kind.PHOTO && items.isNotEmpty() && path != null) add("▶ スライドショー" to { open(items.first()) })
+    }
+
+    var menuOpen by remember { mutableStateOf(false) }
+    if (menuOpen) { MenuOverlay(TileMenu(kind.label, menuActions())) { menuOpen = false }; return }
     val tiles = kind != Kind.BOOK
     val (tw, th) = when (kind) { Kind.VIDEO -> 132.dp to 196.dp; Kind.MUSIC -> 150.dp to 186.dp; else -> 176.dp to 150.dp }
     androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
         if (tiles) androidx.compose.foundation.lazy.grid.GridCells.Adaptive(tw) else androidx.compose.foundation.lazy.grid.GridCells.Fixed(1),
-        Modifier.fillMaxSize(),
+        Modifier.fillMaxSize().onPreviewKeyEvent { ev ->
+            if (ev.key == androidx.compose.ui.input.key.Key.Menu && ev.type == androidx.compose.ui.input.key.KeyEventType.KeyUp) { menuOpen = true; true } else false
+        },
         contentPadding = PaddingValues(horizontal = 64.dp, vertical = 24.dp),
         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
         verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(if (tiles) 16.dp else 0.dp),
@@ -172,16 +193,8 @@ fun NasScreen(app: TvHomeApp, view: app.thetahatch.tvhome.HomeState.NasView) {
             }
         }
         item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
-            Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 8.dp)) {
-                Chip("🔍 さがす") { asking = true }
-                if (canVoice) Chip("🎤 こえで") { runCatching { voice.launch(voiceIntent) } }
-                Chip("🆕 さいきん") { stack = emptyList(); mode = "recent" }
-                if (mode != "browse" || stack.size > 1) Chip("📁 ぜんぶ") { mode = "browse"; stack = listOf(root) }
-                if (mode != "browse") Chip("⟳ しらべなおす") { st.ensureIndex(kind, force = true) { indexVersion++ } }
-                if (kind == Kind.MUSIC && items.isNotEmpty() && path != null) Chip("▶ ぜんぶ さいせい") { open(items.first()) }
-                if (kind == Kind.MUSIC) Chip("⏯") { scope.launch { runCatching { st.music.toggle() } } }
-                if (kind == Kind.PHOTO && items.isNotEmpty() && path != null) Chip("▶ スライドショー") { open(items.first()) }
-            }
+            // 操作は見るだけの案内（上の段にフォーカスは移さない。ほかの操作はメニューボタン）
+            T("メニュー：" + menuActions().joinToString("・") { it.first }, Modifier.padding(bottom = 8.dp), size = 12.sp, color = p.muted)
         }
         error?.let { e -> item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) { NasTrouble(app, e) { tick++ } } }
         if (path != null && entries == null && error == null) item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) { T("よみこみ中…", size = 18.sp, color = p.muted) }
@@ -210,11 +223,6 @@ private fun label(kind: Kind, name: String, dir: Boolean): String = when {
     kind == Kind.VIDEO -> Names.episode(name)
     dir -> kind.shelfName(name)
     else -> kind.title(name)
-}
-
-@Composable
-private fun Chip(text: String, onClick: () -> Unit) {
-    Focusable(Modifier, onClick, scaleTo = 1.05f) { Box(Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) { T(text, size = 16.sp) } }
 }
 
 /** 絵の並びの 1 つ：えいがの作品はポスター、おんがくのアルバムはジャケット、しゃしんは縮小版。無ければ絵文字。 */
