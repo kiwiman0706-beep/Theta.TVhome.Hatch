@@ -21,8 +21,8 @@ android {
         applicationId = "app.thetahatch.tvhome"
         minSdk = 28
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.10.0"
+        versionCode = 14
+        versionName = "0.11.0"
         // テレビは ARM（AQUOS は 64 ビット、R4-SH は 32 ビット）。x86 は入れない（APK を小さく）
         ndk { abiFilters += listOf("armeabi-v7a", "arm64-v8a") }
     }
@@ -89,6 +89,8 @@ dependencies {
     implementation("androidx.media3:media3-session:1.8.0")
     // えいが：mpv（Theta Movie Hatch と同じく、mkv・HEVC・DTS・二か国語の .ts もそのまま）。ARM の 2 種類だけ入れる
     implementation("dev.jdtech.mpv:libmpv:1.0.0")
+    // スマホで入れる：QR コード
+    implementation("com.google.zxing:core:3.5.3")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
     // 画面の見本（スクリーンショット）を JVM 上で描く

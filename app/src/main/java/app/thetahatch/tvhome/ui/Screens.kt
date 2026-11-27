@@ -1,6 +1,11 @@
 package app.thetahatch.tvhome.ui
 
 import app.thetahatch.tvhome.nas.Kind
+import app.thetahatch.tvhome.link.PhoneInput
+import app.thetahatch.tvhome.link.Qr
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import app.thetahatch.tvhome.rescue.Rescue
 import app.thetahatch.tvhome.rescue.RescueActivity
 import android.content.Intent
@@ -153,7 +158,11 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
         placeMsg?.let { m -> item { T(m, size = 20.sp, color = p.muted) } }
         items(places) { pl -> RowButton(pl.name, "%.2f, %.2f".format(pl.lat, pl.lon), onClick = { s.weatherPlace = pl.encode(); places = emptyList(); changed() }) }
 
+        item { SectionTitle("スマホで いれる") }
+        item { RowButton("📱 スマホで まとめて いれる", null, focusRequester = null, onClick = { app.state.phoneInput("all") }, note = "テレビに QR コードを 出します。スマホで 読んで、NAS・Gemini の せっていを 貼り付けて おくる（家の LAN の中だけ・5 分）") }
+
         item { SectionTitle("NAS（おんがく・えいが・ほん）") }
+        item { RowButton("📱 NAS の せっていを スマホで いれる", null, onClick = { app.state.phoneInput("nas") }) }
         item {
             val err by app.state.nasError.collectAsState()
             val otp by app.state.nasNeedsOtp.collectAsState()
@@ -173,6 +182,7 @@ fun SettingsScreen(app: TvHomeApp, go: (String) -> Unit, askPin: (String, (Strin
         }
 
         item { SectionTitle("Gemini（きく）") }
+        item { RowButton("📱 Gemini の せっていを スマホで いれる", null, onClick = { app.state.phoneInput("gemini") }) }
         item { RowButton("Gemini の API キー", if (s.hasSecret("gemini.key")) "設定済み" else "未設定", onClick = { textAsk = Triple("Gemini の API キー（Google AI Studio で作る）", "gemini.key", true) }, note = "じぶんの キーで つかいます。テレビの中で 暗号化して 持ちます。ADB の SET_SECRET でも") }
         item { RowButton("モデル", s.get("gemini.model")?.ifBlank { null } ?: "gemini-2.5-flash", onClick = { textAsk = Triple("Gemini のモデル（例 gemini-2.5-flash）", "gemini.model", false) }) }
 
@@ -277,6 +287,44 @@ fun AllAppsScreen(app: TvHomeApp, menu: (TileMenu) -> Unit, guarded: (() -> Unit
                 Tile(a.label, 200.dp, 112.dp, image = appArt(a, px), banner = a.hasBanner,
                     focusRequester = if (a == apps.first()) first else null,
                     onClick = { app.state.launch(a.intent) }, onMenu = { guarded { menu(appMenu(app, a)) } })
+            }
+        }
+    }
+}
+
+/** スマホで入れる：QR コードと、入れる項目・残り時間。受け取ったら知らせて閉じる。 */
+@Composable
+fun PhoneInputOverlay() {
+    val p = LocalPalette.current
+    val sess by PhoneInput.state.collectAsState()
+    val s0 = sess ?: return
+    val close = remember { FocusRequester() }
+    var now by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(s0.url) { delay(100); runCatching { close.requestFocus() }; while (true) { now = System.currentTimeMillis(); delay(1000) } }
+    LaunchedEffect(s0.done) { if (s0.done != null) { delay(4000); PhoneInput.dismiss() } }
+    androidx.activity.compose.BackHandler { PhoneInput.dismiss() }
+    val qr = remember(s0.url) { if (s0.url.isEmpty()) null else Qr.bitmap(s0.url).asImageBitmap() }
+    Box(Modifier.fillMaxSize().background(p.bg.copy(alpha = 0.95f)), contentAlignment = Alignment.Center) {
+        Row(Modifier.background(p.panel).border(2.dp, p.accent).padding(28.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (qr != null && s0.done == null) {
+                androidx.compose.foundation.Image(qr, "QR", Modifier.size(240.dp))
+                Spacer(Modifier.width(28.dp))
+            }
+            Column(Modifier.width(420.dp)) {
+                T("📱 " + s0.title, size = 26.sp, modifier = Modifier.padding(bottom = 10.dp))
+                when {
+                    s0.error != null -> T(s0.error, size = 20.sp, color = p.accent, lines = 3)
+                    s0.done != null -> T(if (s0.done.isEmpty()) "うけとりました（かわった ところは ありません）" else "うけとりました ✓\n" + s0.done.joinToString("・"), size = 22.sp, color = p.accent, lines = 6)
+                    else -> {
+                        T("スマホの カメラで QR コードを 読んで、ひらいた ページに 入れて「テレビに おくる」", size = 18.sp, lines = 3)
+                        Spacer(Modifier.height(8.dp))
+                        T(s0.url.substringBefore("?"), size = 16.sp, color = p.muted, font = Mono)
+                        T("入れられる もの：" + s0.fields.joinToString("・") { it.label }, size = 14.sp, color = p.muted, lines = 4)
+                        val left = ((s0.until - now) / 1000).coerceAtLeast(0)
+                        T("のこり %d:%02d（家の Wi-Fi の中だけ）".format(left / 60, left % 60), size = 14.sp, color = p.muted)
+                    }
+                }
+                RowButton("とじる", null, focusRequester = close, onClick = { PhoneInput.dismiss() })
             }
         }
     }

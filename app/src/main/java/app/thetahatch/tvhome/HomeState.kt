@@ -9,6 +9,8 @@ import app.thetahatch.tvhome.data.AppItem
 import app.thetahatch.tvhome.music.Music
 import app.thetahatch.tvhome.music.MusicLib
 import app.thetahatch.tvhome.nas.Dsm
+import app.thetahatch.tvhome.link.PhoneInput
+import app.thetahatch.tvhome.link.PhoneInput.Field as PhoneField
 import app.thetahatch.tvhome.nas.Kind
 import app.thetahatch.tvhome.nas.Index as NasIndex
 import app.thetahatch.tvhome.nas.NasEntry
@@ -177,6 +179,22 @@ class HomeState(private val app: TvHomeApp) {
     fun nasProblem(e: Throwable) {
         nasNeedsOtp.value = e is OtpRequired
         nasError.value = e.message ?: "NAS につながりません"
+    }
+
+    /** スマホで入れる（QR コード）。group：nas・gemini・all。 */
+    fun phoneInput(group: String) {
+        val nas = listOf(
+            PhoneField("nas.url", "NAS の URL", hint = "例 http://nas.tailXXXX.ts.net:5000"),
+            PhoneField("nas.user", "NAS のユーザー名"),
+            PhoneField("nas.password", "NAS のパスワード", secret = true),
+        ) + Kind.entries.map { PhoneField(it.rootKey, "${it.label}の 共有フォルダ", hint = it.defaultRoot) }
+        val gemini = listOf(PhoneField("gemini.key", "Gemini の API キー", secret = true), PhoneField("gemini.model", "Gemini のモデル", hint = "gemini-2.5-flash"))
+        val (title, fields) = when (group) { "nas" -> "NAS の せってい" to nas; "gemini" -> "Gemini の せってい" to gemini; else -> "TVhome の せってい" to nas + gemini }
+        PhoneInput.start(app, store, title, fields) { saved ->
+            app.scope.launch {
+                if (saved.isNotEmpty()) { dsm.reset(); refreshShelves(force = true); app.settingsChanged() }
+            }
+        }
     }
 
     /** せってい：Google カレンダーにつなぐ（許可の画面を出す）。 */

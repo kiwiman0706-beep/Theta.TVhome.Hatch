@@ -31,6 +31,7 @@ import app.thetahatch.tvhome.ui.HomeScreen
 import app.thetahatch.tvhome.ui.LocalPalette
 import app.thetahatch.tvhome.ui.MenuOverlay
 import app.thetahatch.tvhome.ui.NasScreen
+import app.thetahatch.tvhome.ui.PhoneInputOverlay
 import app.thetahatch.tvhome.ui.PinPad
 import app.thetahatch.tvhome.ui.SettingsScreen
 import app.thetahatch.tvhome.ui.TileMenu
@@ -102,6 +103,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     menu?.let { m -> MenuOverlay(m) { menu = null } }
+                    PhoneInputOverlay()
                     pinAsk?.let { (title, done) -> PinPad(title, { pin -> pinAsk = null; done(pin) }, { pinAsk = null }) }
                     if (current == "rescue-pin") {
                         PinPad("レスキュー：おうちの人の番号", { pin -> screen.value = "home"; if (app.store.checkPin(pin)) openRescue() else app.toast("番号がちがいます") }, { screen.value = "home" })

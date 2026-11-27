@@ -187,4 +187,11 @@ class LogicTest {
         assertTrue(a.sources[0].place)
         assertFalse(a.sources[1].place)
     }
+
+    @Test fun phoneFormParse() {
+        val m = app.thetahatch.tvhome.link.PhoneInput.parse("nas.url=http%3A%2F%2F192.168.1.5%3A5000&gemini.key=AIza+x%2By&empty=")
+        assertEquals("http://192.168.1.5:5000", m["nas.url"])
+        assertEquals("AIza x+y", m["gemini.key"])
+        assertEquals("", m["empty"])
+    }
 }
