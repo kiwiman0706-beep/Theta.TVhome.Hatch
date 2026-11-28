@@ -93,6 +93,7 @@
 - 設定アプリ（`com.android.tv.settings`）は止めていない。**リセットの場所**：設定 → デバイス設定 → **デバイス情報 → 出荷時設定にリセット**（`com.android.tv.settings/.about.AboutActivity` の中にあるのを画面で確認。押してはいない）
 - そこへの行き方：
   - TVhome のレスキュー（リモコンの「戻る」を すばやく 7 回、または ADB の `OPEN --es screen rescue`）→「Android の設定を開く」→ 設定（`MainSettings` が開くのを確認）
+  - リモコンの「戻る」7 回でレスキューが開くのを、利用者が確かめた（2026-11-28）
   - PC から：`adb shell am start -n com.android.tv.settings/.about.AboutActivity`
 - PC から元に戻す（リセットしなくてよい）：`adb shell pm enable com.google.android.tvlauncher` のあと `adb shell cmd package set-home-activity com.google.android.tvlauncher/.MainActivity`
 - ADB のリカバリー：`adb reboot recovery`（A/B の機種、`ro.build.ab_update=true`。動くかは**未確認**）
